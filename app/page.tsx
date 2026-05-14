@@ -77,7 +77,7 @@ function Hero() {
         }}
       />
       <div className="relative mx-auto flex max-w-6xl flex-col items-center px-6 text-center">
-        <h1 className="max-w-4xl text-5xl font-semibold leading-[1.02] tracking-tight text-navy sm:text-[5.5rem]">
+        <h1 className="max-w-4xl text-4xl font-semibold leading-[1.05] tracking-tight text-navy sm:text-6xl lg:text-[5.5rem]">
           The stock market,
           <br />
           <span className="relative inline-block">
@@ -86,15 +86,15 @@ function Hero() {
           </span>{" "}
           on Solana.
         </h1>
-        <p className="mt-7 max-w-lg text-lg leading-relaxed text-muted">
+        <p className="mt-5 max-w-lg text-base leading-relaxed text-muted sm:mt-7 sm:text-lg">
           One wallet. Real equities. Leverage when you want it, sandwich
           portfolios when you don&apos;t. Bread is how Gen Z invests.
         </p>
 
         <ScrollScale range={0.18}>
-          <div className="relative mt-16 flex w-full items-end justify-center gap-6 sm:gap-10">
+          <div className="relative mt-12 flex w-full items-end justify-center gap-4 sm:mt-16 sm:gap-10">
             <div className="float-delay hidden sm:block">
-              <div className="phone-frame w-[210px] glow-soft opacity-95">
+              <div className="phone-frame w-[180px] glow-soft opacity-95 lg:w-[210px]">
                 <Image
                   src="/news.png"
                   alt="News feed"
@@ -105,7 +105,7 @@ function Hero() {
               </div>
             </div>
             <div className="float relative z-10">
-              <div className="phone-frame w-[260px] glow-green sm:w-[300px]">
+              <div className="phone-frame w-[230px] glow-green sm:w-[260px] lg:w-[300px]">
                 <Image
                   src="/chart.png"
                   alt="Stock chart"
@@ -116,7 +116,7 @@ function Hero() {
               </div>
             </div>
             <div className="float-delay hidden sm:block">
-              <div className="phone-frame w-[210px] glow-soft opacity-95">
+              <div className="phone-frame w-[180px] glow-soft opacity-95 lg:w-[210px]">
                 <Image
                   src="/leverage.png"
                   alt="Leverage buy"
@@ -135,13 +135,13 @@ function Hero() {
 
 function SectionIntro() {
   return (
-    <div className="mx-auto max-w-6xl px-6 pt-24 pb-4">
-      <div className="flex items-end justify-between gap-8">
+    <div className="mx-auto max-w-6xl px-6 pt-16 pb-4 sm:pt-24">
+      <div className="flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-end lg:gap-8">
         <div>
           <div className="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-muted">
             What&apos;s inside
           </div>
-          <h2 className="max-w-2xl text-4xl font-semibold leading-tight tracking-tight text-navy sm:text-5xl">
+          <h2 className="max-w-2xl text-3xl font-semibold leading-tight tracking-tight text-navy sm:text-4xl lg:text-5xl">
             Four screens. Everything an investor actually uses.
           </h2>
         </div>
@@ -156,13 +156,13 @@ function SectionIntro() {
 
 function Closing() {
   return (
-    <section className="relative overflow-hidden px-6 py-24 sm:py-32">
-      <div className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-20">
-        <div>
+    <section className="relative overflow-hidden px-6 py-20 sm:py-32">
+      <div className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-20">
+        <div className="order-2 lg:order-1">
           <div className="mb-4 font-mono text-xs uppercase tracking-[0.2em] text-muted">
             One more thing
           </div>
-          <h2 className="max-w-md text-5xl font-semibold leading-[1.05] tracking-tight text-navy sm:text-6xl">
+          <h2 className="max-w-md text-4xl font-semibold leading-[1.05] tracking-tight text-navy sm:text-5xl lg:text-6xl">
             Markets that never{" "}
             <span className="relative inline-block">
               <span className="relative z-10">sleep</span>
@@ -170,12 +170,12 @@ function Closing() {
             </span>
             .
           </h2>
-          <p className="mt-6 max-w-md text-lg leading-relaxed text-muted">
+          <p className="mt-5 max-w-md text-base leading-relaxed text-muted sm:mt-6 sm:text-lg">
             Wall Street closes at 4pm. Bread doesn&apos;t. Trade equities at
             midnight, on the train, between classes — anywhere you have a
             wallet.
           </p>
-          <div className="mt-10 flex items-center gap-6 text-sm">
+          <div className="mt-8 flex items-center gap-6 text-sm sm:mt-10">
             <div className="flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-accent pulse-glow" />
               <span className="text-navy">Live now on Solana mainnet</span>
@@ -183,11 +183,17 @@ function Closing() {
           </div>
         </div>
 
-        <div className="relative">
+        <div className="relative order-1 lg:order-2">
           <div className="absolute inset-0 -z-10 grid-bg opacity-70" />
           <div className="relative flex items-center justify-center">
-            <div className="absolute h-72 w-72 rounded-full bg-accent/20 blur-3xl" />
-            <Logo size={220} />
+            <div className="absolute h-48 w-48 rounded-full bg-accent/20 blur-3xl sm:h-72 sm:w-72" />
+            <Image
+              src="/logo.png"
+              alt="Bread"
+              width={220}
+              height={220}
+              className="h-32 w-32 object-contain sm:h-48 sm:w-48 lg:h-56 lg:w-56"
+            />
           </div>
         </div>
       </div>

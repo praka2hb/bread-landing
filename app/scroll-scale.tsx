@@ -106,81 +106,106 @@ export function StickyFeatures({
   }, []);
 
   return (
-    <div
-      ref={sectionRef}
-      className="relative mx-auto grid max-w-6xl grid-cols-1 gap-12 px-6 lg:grid-cols-2 lg:gap-20"
-    >
-      <div className="order-2 lg:order-1">
-        <div className="flex flex-col">
-          {items.map((it, i) => (
-            <div
-              key={i}
-              data-panel
-              className="flex min-h-[80vh] flex-col justify-center py-12"
-            >
-              <div
-                className={`mb-5 inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium uppercase tracking-wider transition ${
-                  active === i
-                    ? "border-accent-deep/30 bg-accent/15 text-accent-deep"
-                    : "border-border bg-card text-muted"
-                }`}
-              >
-                <span className="font-mono">0{i + 1}</span>
-                <span>{it.eyebrow}</span>
-              </div>
-              <h3 className="max-w-md text-4xl font-semibold leading-[1.1] tracking-tight text-navy sm:text-5xl">
-                {it.title}
-              </h3>
-              <p className="mt-5 max-w-md text-lg leading-relaxed text-muted">
-                {it.body}
-              </p>
+    <>
+      {/* Mobile: stacked cards, each with inline image */}
+      <div className="mx-auto flex max-w-md flex-col gap-16 px-6 lg:hidden">
+        {items.map((it, i) => (
+          <div key={i} className="flex flex-col items-center">
+            <div className="mb-5 inline-flex w-fit items-center gap-2 rounded-full border border-accent-deep/30 bg-accent/15 px-3 py-1 text-xs font-medium uppercase tracking-wider text-accent-deep">
+              <span className="font-mono">0{i + 1}</span>
+              <span>{it.eyebrow}</span>
             </div>
-          ))}
-        </div>
+            <h3 className="text-center text-3xl font-semibold leading-[1.1] tracking-tight text-navy sm:text-4xl">
+              {it.title}
+            </h3>
+            <p className="mt-4 max-w-md text-center text-base leading-relaxed text-muted">
+              {it.body}
+            </p>
+            <div className="mt-8 phone-frame w-[240px] glow-soft sm:w-[280px]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={it.image} alt={it.title} className="block h-auto w-full" />
+            </div>
+          </div>
+        ))}
       </div>
 
-      <div className="order-1 lg:order-2">
-        <div className="sticky top-0 flex h-screen items-center justify-center">
-          <div className="relative h-[640px] w-[300px]">
-            {items.map((it, i) => {
-              const isActive = active === i;
-              const offset = i - active;
-              return (
+      {/* Desktop: sticky split */}
+      <div
+        ref={sectionRef}
+        className="relative mx-auto hidden max-w-6xl grid-cols-2 gap-20 px-6 lg:grid"
+      >
+        <div>
+          <div className="flex flex-col">
+            {items.map((it, i) => (
+              <div
+                key={i}
+                data-panel
+                className="flex min-h-[80vh] flex-col justify-center py-12"
+              >
                 <div
-                  key={i}
-                  className="absolute inset-0 transition-all duration-500 ease-out"
-                  style={{
-                    opacity: isActive ? 1 : 0,
-                    transform: `translateY(${offset * 24}px) scale(${
-                      isActive ? 1 : 0.94
-                    })`,
-                    pointerEvents: isActive ? "auto" : "none",
-                  }}
-                >
-                  <div className="phone-frame h-full w-full glow-soft">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={it.image}
-                      alt={it.title}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                </div>
-              );
-            })}
-            <div className="absolute -right-10 top-1/2 hidden -translate-y-1/2 flex-col gap-2 lg:flex">
-              {items.map((_, i) => (
-                <div
-                  key={i}
-                  className={`h-8 w-1 rounded-full transition ${
-                    active === i ? "bg-accent" : "bg-border"
+                  className={`mb-5 inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium uppercase tracking-wider transition ${
+                    active === i
+                      ? "border-accent-deep/30 bg-accent/15 text-accent-deep"
+                      : "border-border bg-card text-muted"
                   }`}
-                />
-              ))}
+                >
+                  <span className="font-mono">0{i + 1}</span>
+                  <span>{it.eyebrow}</span>
+                </div>
+                <h3 className="max-w-md text-4xl font-semibold leading-[1.1] tracking-tight text-navy sm:text-5xl">
+                  {it.title}
+                </h3>
+                <p className="mt-5 max-w-md text-lg leading-relaxed text-muted">
+                  {it.body}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <div className="sticky top-0 flex h-screen items-center justify-center">
+            <div className="relative h-[640px] w-[300px]">
+              {items.map((it, i) => {
+                const isActive = active === i;
+                const offset = i - active;
+                return (
+                  <div
+                    key={i}
+                    className="absolute inset-0 transition-all duration-500 ease-out"
+                    style={{
+                      opacity: isActive ? 1 : 0,
+                      transform: `translateY(${offset * 24}px) scale(${
+                        isActive ? 1 : 0.94
+                      })`,
+                      pointerEvents: isActive ? "auto" : "none",
+                    }}
+                  >
+                    <div className="phone-frame h-full w-full glow-soft">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={it.image}
+                        alt={it.title}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+              <div className="absolute -right-10 top-1/2 flex -translate-y-1/2 flex-col gap-2">
+                {items.map((_, i) => (
+                  <div
+                    key={i}
+                    className={`h-8 w-1 rounded-full transition ${
+                      active === i ? "bg-accent" : "bg-border"
+                    }`}
+                  />
+                ))}
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
