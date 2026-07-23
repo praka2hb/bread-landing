@@ -1,0 +1,66 @@
+@import "tailwindcss";
+
+:root {
+  --font-rounded: "SF Pro Rounded", "SF Pro Display", -apple-system, system-ui, sans-serif;
+  --bg: #ffffff;
+  --ink: #16161a;
+  --muted: #8a8a92;
+  --line: #e0e0e0;
+  --cyan: #00bfff;
+  --cyan-deep: #009bd6;
+  --magenta: #f5119b;
+  --lime: #dcf52b;
+  --long: #16a34a;
+  --short: #fe14ae;
+}
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #ffffff;
+  color: #000000;
+  -webkit-font-smoothing: antialiased;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@keyframes typing {
+  0% { width: 0; }
+  100% { width: 100%; }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes fadeInUp {
+  0% { opacity: 0; transform: translateY(12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+@keyframes slideDown {
+  0% { opacity: 0; transform: translateY(-8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
