@@ -651,7 +651,7 @@ function BackYourThesisSticker() {
   return (
     <div className={styles.thesisSticker}>
       <Image
-        src="/sticker.PNG"
+        src="/sticker.png"
         alt="Back your thesis with"
         width={160}
         height={160}
@@ -831,7 +831,7 @@ export function BreadHero() {
         />
         <div className={styles.navLinks}>
           <a
-            href="https://x.com"
+            href="https://x.com/breadappfun"
             target="_blank"
             rel="noopener noreferrer"
             className={styles.navIcon}
@@ -842,7 +842,7 @@ export function BreadHero() {
             </svg>
           </a>
           <a
-            href="https://instagram.com"
+            href="https://www.instagram.com/trybreadapp/"
             target="_blank"
             rel="noopener noreferrer"
             className={styles.navIcon}
@@ -853,9 +853,38 @@ export function BreadHero() {
             </svg>
           </a>
         </div>
-        <a href="#waitlist" className={styles.navCta}>
-          JOIN WAITLIST
-        </a>
+        <div className={styles.testflightCta}>
+          <a
+            href="https://testflight.apple.com/join/8UAWE67D"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.navCta}
+          >
+            <span>JOIN TESTFLIGHT</span>
+            <svg
+              viewBox="0 0 20 20"
+              aria-hidden="true"
+              className={styles.navCtaArrow}
+            >
+              <path d="M6 14 14 6m0 0H8m6 0v6" />
+            </svg>
+          </a>
+          <span className={styles.testflightPopover} aria-hidden="true">
+            <span className={styles.popoverGlow} />
+            <span className={styles.qrFrame}>
+              <Image
+                src="/testflight-qr.svg"
+                alt=""
+                width={198}
+                height={198}
+                className={styles.qrCode}
+              />
+            </span>
+            <span className={styles.popoverCopy}>
+              <strong>Scan to get Bread</strong>
+            </span>
+          </span>
+        </div>
       </nav>
       <div className={styles.stage}>
         <div className={styles.compose}>
@@ -1261,7 +1290,7 @@ export function BreadHero() {
             </div>
 
             <div className={`${styles.chatBubble} ${styles.chatBubbleC}`}>
-              <span className={styles.chatBubbleHandle}>@mira</span>
+              <span className={styles.chatBubbleHandle}>@prshbt</span>
               <span className={styles.chatBubbleText}>
                 AI infra repricing in Q3 — back it?
               </span>
