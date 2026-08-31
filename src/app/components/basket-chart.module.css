@@ -1,0 +1,54 @@
+/* The basket curve, shared by the sandwich detail screen and the episode card.
+   Height is the host's call — set `--basket-chart-height` on the element the
+   host passes in as `className`. */
+
+/* Every dimension the host may want to override is a custom property rather
+   than a rule to out-specify — both selectors are one class deep, so which one
+   wins would otherwise come down to bundle order. */
+.section {
+  padding: 0 var(--basket-chart-inset, 8px);
+}
+
+.wrap {
+  position: relative;
+  height: var(--basket-chart-height, 160px);
+  touch-action: pan-y;
+  cursor: crosshair;
+}
+
+.svg {
+  display: block;
+}
+
+.line {
+  animation: chartDraw 800ms ease-out both;
+}
+
+@keyframes chartDraw {
+  from {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .line {
+    animation: none;
+  }
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 0 4px;
+  color: var(--app-chart-neutral);
+  font-size: var(--basket-chart-footer-size, 9px);
+  font-weight: 700;
+}

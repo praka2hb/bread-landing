@@ -1,0 +1,846 @@
+/*
+ * Palette lifted verbatim from the app's LIGHT semantic tokens
+ * (bread-mobile/src/constants/theme.ts). The `--market-*` names below are
+ * aliases onto them, so the pages written against the older names inherit the
+ * app's colours without a rule-by-rule rewrite.
+ *
+ * Light only, by design — there is no `prefers-color-scheme` branch. The
+ * `color-scheme` declaration is what stops the UA from darkening scrollbars and
+ * form controls inside this subtree for a viewer whose OS is set to dark; it is
+ * scoped here rather than on :root so the marketing page is left alone.
+ */
+.shell {
+  color-scheme: light;
+
+  --app-bg: #ffffff;
+  --app-bg-alt: #f8fafc;
+  --app-surface: #ffffff;
+  --app-surface-alt: #f0f0f3;
+  --app-surface-selected: #e0e1e6;
+  --app-text: #0b1622;
+  --app-text-secondary: #60646c;
+  --app-text-tertiary: #8a93a3;
+  --app-border: #e6e8ec;
+  --app-accent: #35f046;
+  --app-accent-blue: #38bdf8;
+  --app-positive: #1ecb4f;
+  --app-chart-positive: #35f046;
+  --app-negative: #ff1ab8;
+  /* The heart is its own pink — deliberately not `negative`. */
+  --app-like: #ff1493;
+  --app-perp: #7c3aed;
+
+  --market-bg: var(--app-bg);
+  --market-card: var(--app-surface);
+  --market-soft: var(--app-surface-alt);
+  --market-ink: var(--app-text);
+  --market-muted: var(--app-text-secondary);
+  --market-line: var(--app-border);
+  --market-accent: var(--app-accent-blue);
+  --market-positive: var(--app-positive);
+  --market-negative: var(--app-negative);
+  --market-on-dark: #ffffff;
+  --market-on-dark-muted: #b0b4ba;
+
+  min-height: 100svh;
+  background: var(--app-bg);
+  color: var(--app-text);
+  font-family: var(--font-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+.container {
+  width: min(1184px, calc(100% - 32px));
+  margin: 0 auto;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.primaryLink,
+.secondaryLink {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 760;
+  text-decoration: none;
+}
+
+.primaryLink {
+  padding: 0 20px;
+  border: 0;
+  background: var(--market-ink);
+  color: var(--market-card);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.secondaryLink {
+  padding: 0 20px;
+  border: 1px solid var(--market-line);
+  background: var(--market-card);
+  color: var(--market-ink);
+}
+
+.primaryLink:focus-visible,
+.secondaryLink:focus-visible,
+.cardLink:focus-visible,
+.sourceLink:focus-visible {
+  outline: 3px solid var(--market-accent);
+  outline-offset: 3px;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(240px, 0.6fr);
+  gap: 32px;
+  align-items: end;
+  padding: 72px 0 36px;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--market-accent);
+  font-size: 13px;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.eyebrowDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--lime);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--lime) 28%, transparent);
+}
+
+.hero h1 {
+  max-width: 760px;
+  margin-top: 14px;
+  font-size: clamp(44px, 7vw, 84px);
+  font-weight: 880;
+  line-height: 0.92;
+  letter-spacing: -0.075em;
+  text-wrap: balance;
+}
+
+.hero p {
+  max-width: 460px;
+  color: var(--market-muted);
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+.sectionTopline {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px 0 16px;
+  border-top: 1px solid var(--market-line);
+}
+
+.sectionTopline h2 {
+  font-size: 21px;
+  letter-spacing: -0.035em;
+}
+
+.sectionTopline span {
+  color: var(--market-muted);
+  font-size: 13px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  padding-bottom: 80px;
+}
+
+.cardLink {
+  display: flex;
+  min-width: 0;
+  min-height: 348px;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--market-line);
+  border-radius: 24px;
+  background: var(--market-card);
+  color: inherit;
+  text-decoration: none;
+  box-shadow: 0 1px 0 rgba(17, 17, 20, 0.03);
+}
+
+.cardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 18px 0;
+}
+
+.rank {
+  display: inline-flex;
+  min-width: 40px;
+  height: 28px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--market-soft);
+  color: var(--market-muted);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.sourceType {
+  overflow: hidden;
+  color: var(--market-muted);
+  font-size: 12px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cardBody {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 22px 18px 18px;
+}
+
+.cardBody h3 {
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: 21px;
+  font-weight: 820;
+  line-height: 1.07;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.creator {
+  margin-top: 10px;
+  color: var(--market-muted);
+  font-size: 13px;
+}
+
+.pnlRow {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 28px;
+}
+
+.pnlValue {
+  font-family: var(--font-figure);
+  font-size: clamp(36px, 4vw, 52px);
+  font-weight: 400;
+  font-synthesis-weight: none;
+  line-height: 0.9;
+  letter-spacing: var(--font-figure-tracking);
+}
+
+.positive {
+  color: var(--market-positive);
+}
+
+.negative {
+  color: var(--market-negative);
+}
+
+.pnlLabel {
+  max-width: 72px;
+  color: var(--market-muted);
+  font-size: 11px;
+  font-weight: 750;
+  line-height: 1.25;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+.legStrip {
+  display: flex;
+  gap: 7px;
+  margin-top: 20px;
+  overflow: hidden;
+}
+
+.legChip {
+  display: inline-flex;
+  min-width: 0;
+  height: 32px;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: var(--market-soft);
+  font-size: 12px;
+  font-weight: 820;
+  white-space: nowrap;
+}
+
+.sideDot {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--market-positive);
+}
+
+.sideDotShort {
+  background: var(--market-negative);
+}
+
+.cardFooter {
+  display: flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 18px;
+  border-top: 1px solid var(--market-line);
+  color: var(--market-muted);
+  font-size: 12px;
+}
+
+.emptyState,
+.errorState {
+  display: grid;
+  min-height: 360px;
+  place-items: center;
+  padding: 48px 20px 80px;
+  text-align: center;
+}
+
+.stateCard {
+  max-width: 440px;
+  padding: 32px;
+  border: 1px solid var(--market-line);
+  border-radius: 24px;
+  background: var(--market-card);
+}
+
+.stateCard h1,
+.stateCard h2 {
+  font-size: 28px;
+  letter-spacing: -0.045em;
+}
+
+.stateCard p {
+  margin: 10px 0 22px;
+  color: var(--market-muted);
+  line-height: 1.5;
+}
+
+.detailMain {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 28px;
+  align-items: start;
+  padding: 40px 0 80px;
+}
+
+.backLink {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  color: var(--market-muted);
+  font-size: 14px;
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.detailHero {
+  padding: 28px 0 36px;
+}
+
+.detailHero h1 {
+  max-width: 860px;
+  margin-top: 14px;
+  font-size: clamp(38px, 6vw, 68px);
+  font-weight: 880;
+  line-height: 0.96;
+  letter-spacing: -0.065em;
+  text-wrap: balance;
+}
+
+.detailMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: 18px;
+  color: var(--market-muted);
+  font-size: 13px;
+}
+
+.metaLink {
+  color: var(--market-accent);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.metaLink:hover {
+  text-decoration: underline;
+}
+
+.performancePanel {
+  display: grid;
+  grid-template-columns: minmax(300px, 0.48fr) minmax(0, 0.52fr);
+  gap: 24px;
+  padding: 28px;
+  border-radius: 28px;
+  background: var(--market-ink);
+  color: var(--market-on-dark);
+}
+
+.performanceNumber {
+  align-self: end;
+  font-family: var(--font-figure);
+  font-size: clamp(58px, 7vw, 88px);
+  font-weight: 400;
+  font-synthesis-weight: none;
+  line-height: 0.82;
+  letter-spacing: var(--font-figure-tracking);
+}
+
+.performanceCopy {
+  align-self: end;
+  padding-left: 24px;
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.performanceCopy span {
+  color: var(--market-on-dark-muted);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.performanceCopy p {
+  margin-top: 10px;
+  color: var(--market-on-dark);
+  font-size: 17px;
+  line-height: 1.45;
+}
+
+.panel {
+  margin-top: 20px;
+  padding: 24px;
+  border: 1px solid var(--market-line);
+  border-radius: 24px;
+  background: var(--market-card);
+}
+
+.panelHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.panelHeader h2 {
+  font-size: 20px;
+  letter-spacing: -0.035em;
+}
+
+.panelHeader span {
+  color: var(--market-muted);
+  font-size: 12px;
+}
+
+.legList {
+  display: grid;
+  gap: 10px;
+}
+
+.legRow {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 14px;
+  border-radius: 16px;
+  background: var(--market-soft);
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Only the legs that resolved to an asset page render as links. */
+a.legRow:hover {
+  background: color-mix(in srgb, var(--market-soft) 60%, var(--market-accent) 10%);
+}
+
+a.legRow:focus-visible {
+  outline: 3px solid var(--market-accent);
+  outline-offset: 2px;
+}
+
+.symbolMark {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border-radius: 14px;
+  background: var(--market-card);
+  color: var(--market-accent);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+}
+
+.legIdentity {
+  min-width: 0;
+}
+
+.legIdentity strong,
+.legIdentity span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.legIdentity .sideLabel {
+  display: inline;
+  font-family: var(--font-figure);
+  font-weight: 400;
+  font-synthesis-weight: none;
+  letter-spacing: -0.04em;
+}
+
+.legIdentity strong {
+  font-size: 14px;
+}
+
+.legIdentity span {
+  margin-top: 3px;
+  color: var(--market-muted);
+  font-size: 12px;
+}
+
+.legNumbers {
+  text-align: right;
+}
+
+.legNumbers strong,
+.legNumbers span {
+  display: block;
+}
+
+.legNumbers strong {
+  font-family: var(--font-figure);
+  font-size: 14px;
+  font-weight: 400;
+  font-synthesis-weight: none;
+  letter-spacing: var(--font-figure-tracking);
+}
+
+.legNumbers span {
+  margin-top: 3px;
+  font-size: 12px;
+}
+
+.thesisText {
+  max-width: 70ch;
+  font-size: 17px;
+  line-height: 1.58;
+}
+
+.quote {
+  margin-top: 18px;
+  padding-left: 18px;
+  border-left: 3px solid var(--lime);
+  color: var(--market-muted);
+  font-family: var(--font-internet);
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+.sourceLink {
+  display: flex;
+  min-height: 72px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--market-soft);
+  color: inherit;
+  text-decoration: none;
+}
+
+.sourceLink strong,
+.sourceLink span {
+  display: block;
+}
+
+.sourceLink span {
+  margin-top: 4px;
+  color: var(--market-muted);
+  font-size: 12px;
+}
+
+.aside {
+  position: sticky;
+  top: 96px;
+  display: grid;
+  gap: 16px;
+}
+
+.appCard,
+.leaderboardCard {
+  padding: 22px;
+  border: 1px solid var(--market-line);
+  border-radius: 24px;
+  background: var(--market-card);
+}
+
+.appCard h2,
+.leaderboardCard h2 {
+  font-size: 19px;
+  letter-spacing: -0.035em;
+}
+
+.appCard p {
+  margin: 8px 0 18px;
+  color: var(--market-muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.appActions {
+  display: grid;
+  gap: 8px;
+}
+
+.miniList {
+  display: grid;
+  margin-top: 12px;
+}
+
+.miniItem {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  gap: 9px;
+  align-items: center;
+  min-height: 54px;
+  border-top: 1px solid var(--market-line);
+  color: inherit;
+  text-decoration: none;
+}
+
+.miniItem:first-child {
+  border-top: 0;
+}
+
+.miniRank {
+  color: var(--market-muted);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.miniTitle {
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 760;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.miniPnl {
+  font-family: var(--font-figure);
+  font-size: 12px;
+  font-weight: 400;
+  font-synthesis-weight: none;
+  letter-spacing: var(--font-figure-tracking);
+}
+
+.skeletonGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  padding: 160px 0 80px;
+}
+
+.skeletonCard {
+  min-height: 348px;
+  border-radius: 24px;
+  background: linear-gradient(100deg, var(--market-soft) 20%, var(--market-card) 48%, var(--market-soft) 76%);
+  background-size: 220% 100%;
+}
+
+@media (hover: hover) {
+  .cardLink,
+  .primaryLink,
+  .secondaryLink,
+  .miniItem,
+  .sourceLink {
+    transition: transform 180ms ease, background-color 180ms ease, border-color 180ms ease;
+  }
+
+  .cardLink:hover {
+    border-color: color-mix(in srgb, var(--market-accent) 34%, var(--market-line));
+    transform: translateY(-3px);
+  }
+
+  .primaryLink:hover {
+    transform: translateY(-1px);
+  }
+
+  .secondaryLink:hover,
+  .sourceLink:hover {
+    background: var(--market-soft);
+  }
+
+  .miniItem:hover {
+    color: var(--market-accent);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .skeletonCard {
+    animation: skeletonShift 1.5s linear infinite;
+  }
+}
+
+@keyframes skeletonShift {
+  to {
+    background-position: -220% 0;
+  }
+}
+
+@media (max-width: 900px) {
+  .grid,
+  .skeletonGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .detailMain {
+    grid-template-columns: 1fr;
+  }
+
+  .aside {
+    position: static;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .container {
+    width: min(100% - 24px, 1184px);
+  }
+
+  .primaryLink,
+  .secondaryLink {
+    padding-inline: 16px;
+  }
+
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 18px;
+    padding: 48px 0 28px;
+  }
+
+  .hero h1 {
+    font-size: clamp(42px, 15vw, 64px);
+  }
+
+  .grid,
+  .skeletonGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .cardLink {
+    min-height: 322px;
+  }
+
+  .detailMain {
+    padding-top: 20px;
+  }
+
+  .performancePanel {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 22px;
+  }
+
+  .performanceCopy {
+    padding: 18px 0 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    border-left: 0;
+  }
+
+  .panel {
+    padding: 18px;
+  }
+
+  .aside {
+    grid-template-columns: 1fr;
+  }
+
+  .legRow {
+    grid-template-columns: 42px minmax(0, 1fr);
+  }
+
+  .legNumbers {
+    grid-column: 2;
+    text-align: left;
+  }
+
+  .legNumbers strong,
+  .legNumbers span {
+    display: inline;
+  }
+
+  .legNumbers span {
+    margin-left: 8px;
+  }
+}
+
+/*
+ * Sheet paint. The app's detail sheets sit on a mint rather than the app's
+ * white (`getSheetColors` in stock-detail-sheet.tsx), so a page that *is* one
+ * of those sheets takes the same background — header included, since the
+ * sticky bar resolves `--market-bg` from the same token. Declared after
+ * `.shell` so the override wins on the element they share.
+ */
+.sheet {
+  --app-bg: #f7fcf8;
+  background-color: var(--app-bg);
+}
+
+/*
+ * The change wash from `changeTintColors`: the move's hue at ~9% alpha over the
+ * top 420px, fading to nothing. Painted as the shell's own background rather
+ * than a full-bleed overlay element, which needs no `100vw` and so cannot spill
+ * a sideways scrollbar.
+ */
+.sheetUp {
+  background-image: linear-gradient(180deg, #35f04617, #35f04600 420px);
+  background-repeat: no-repeat;
+}
+
+.sheetDown {
+  background-image: linear-gradient(180deg, #ff1ab817, #ff1ab800 420px);
+  background-repeat: no-repeat;
+}
+
+.sheetFlat {
+  background-image: linear-gradient(180deg, #9aa3b014, #9aa3b000 420px);
+  background-repeat: no-repeat;
+}

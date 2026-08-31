@@ -3,13 +3,14 @@ import Image from "next/image";
 export function Footer() {
   return (
     <footer
+      id="waitlist"
       style={{
         position: "relative",
         background: "#16161a",
         color: "#ffffff",
         padding: "80px 24px 40px",
         overflow: "hidden",
-        fontFamily: "var(--font-rounded)",
+        fontFamily: "var(--font-primary)",
       }}
     >
       <div
@@ -50,7 +51,7 @@ export function Footer() {
           </p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
             <a
-              href="#"
+              href="/sandwiches"
               style={{
                 background: "var(--lime)",
                 color: "#16161a",
@@ -75,7 +76,7 @@ export function Footer() {
                 textDecoration: "none",
               }}
             >
-              Learn more
+              Top sandwiches
             </a>
           </div>
         </div>
@@ -92,8 +93,8 @@ export function Footer() {
           <Image
             src="/money-jar.png"
             alt="A glass jar filled with saved cash and coins"
-            width={240}
-            height={380}
+            width={596}
+            height={958}
             style={{
               height: "auto",
               width: "100%",

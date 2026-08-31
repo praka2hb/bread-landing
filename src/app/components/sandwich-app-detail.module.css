@@ -1,0 +1,1001 @@
+/*
+ * The app's sandwich detail screen, on the web.
+ *
+ * Every size, weight and colour below is the value the native screen uses
+ * (bread-mobile: constants/theme.ts, screens/sandwich-screen.tsx,
+ * components/x-post-preview.tsx, components/sandwich-basket-chart.tsx) — points
+ * map 1:1 onto px, and the column is capped at a phone's width so the layout is
+ * the one the numbers were tuned for rather than a stretched version of it.
+ */
+
+.screen {
+  --app-bg: #ffffff;
+  --app-bg-alt: #f8fafc;
+  --app-surface: #ffffff;
+  --app-surface-alt: #f0f0f3;
+  --app-text: #0b1622;
+  --app-text-secondary: #60646c;
+  --app-text-tertiary: #8a93a3;
+  --app-border: #e6e8ec;
+  --app-accent-blue: #38bdf8;
+  --app-chart-positive: #35f046;
+  --app-chart-neutral: #94a3b8;
+  --app-chart-crosshair: #10223d;
+  --app-negative: #ff1ab8;
+  --app-accent: var(--app-accent-blue);
+
+  position: relative;
+  min-height: 100svh;
+  background: var(--app-bg);
+  color: var(--app-text);
+  font-family: var(--font-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+.page {
+  width: min(430px, 100%);
+  margin: 0 auto;
+  padding: 12px 16px 0;
+}
+
+/*
+ * Narrow: the two column wrappers disappear (`display: contents`) and every
+ * block becomes a child of one flex column. The columns are grouped for the
+ * WIDE layout — post and holdings on the left, chart on the right — so `order`
+ * is what puts them back into the app's own top-to-bottom sequence here: post,
+ * number, chart, timeframes, holdings, thesis.
+ */
+.columns {
+  display: flex;
+  flex-direction: column;
+}
+
+.postColumn,
+.marketColumn {
+  display: contents;
+}
+
+.pnlRow,
+.chartSection,
+.rangeRow {
+  order: 1;
+}
+
+.legs {
+  order: 2;
+}
+
+/* Back control: the app's circular glass button, over the content. */
+.backButton {
+  display: flex;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+  border-radius: 999px;
+  background: var(--app-bg);
+  box-shadow: 0 4px 14px rgba(27, 42, 74, 0.14);
+  color: var(--app-text);
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.backButton svg {
+  width: 24px;
+  height: 24px;
+}
+
+.backButton:hover {
+  box-shadow: 0 6px 18px rgba(27, 42, 74, 0.2);
+}
+
+.backButton:active {
+  transform: scale(0.94);
+}
+
+/* ── Source post ──────────────────────────────────────────────────────────── */
+
+.postHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  flex: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 21px;
+  background: var(--app-surface-alt);
+  object-fit: cover;
+}
+
+.avatarFallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--app-text);
+  color: var(--app-bg);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.identityLink {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
+  color: inherit;
+  text-decoration: none;
+}
+
+a.identityLink:hover {
+  opacity: 0.7;
+}
+
+.identity {
+  flex: 1;
+  min-width: 0;
+}
+
+.displayName {
+  display: block;
+  overflow: hidden;
+  color: var(--app-text);
+  font-size: 15px;
+  line-height: 19px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.metaRow {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 4px;
+}
+
+.handle {
+  overflow: hidden;
+  color: var(--app-text-secondary);
+  font-size: 13px;
+  line-height: 17px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.metaDot {
+  color: var(--app-text-tertiary);
+  font-size: 13px;
+}
+
+.date {
+  color: var(--app-text-tertiary);
+  font-size: 13px;
+  line-height: 17px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.xButton {
+  display: flex;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  align-self: flex-start;
+  align-items: center;
+  justify-content: center;
+  color: var(--app-text);
+}
+
+.xButton svg {
+  width: 19px;
+  height: 19px;
+}
+
+.xButton:hover {
+  opacity: 0.6;
+}
+
+.postBody {
+  margin-top: 12px;
+  color: var(--app-text);
+  font-size: 16px;
+  line-height: 23px;
+  font-weight: 500;
+  white-space: pre-wrap;
+}
+
+/* Same 5-line clamp the app collapses a long post to. */
+.postBodyClamped {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+  line-clamp: 5;
+}
+
+.moreButton {
+  margin-top: 5px;
+  padding: 2px 0;
+  border: 0;
+  background: none;
+  color: var(--app-accent-blue);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 18px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.moreButton:hover {
+  opacity: 0.6;
+}
+
+/* ── Headline P&L ─────────────────────────────────────────────────────────── */
+
+.pnlRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 16px;
+  padding: 6px 10px 2px;
+}
+
+.pnlBasis {
+  color: var(--app-text-tertiary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.pnlValue {
+  font-family: var(--font-figure);
+  font-size: 30px;
+  font-weight: 400;
+  font-synthesis-weight: none;
+  letter-spacing: var(--font-figure-tracking);
+  /* Tabular figures so the number's width doesn't jitter while scrubbing. */
+  font-variant-numeric: tabular-nums;
+}
+
+.pnlPositive {
+  color: var(--app-chart-positive);
+}
+
+.pnlNegative {
+  color: var(--app-negative);
+}
+
+/* ── Chart ────────────────────────────────────────────────────────────────── */
+
+/* The curve itself lives in `basket-chart.module.css`; this is only the box it
+   is given. The component reads the height back off the element, so this — not
+   the component — is what decides how tall the curve is at each breakpoint. */
+.chartSection {
+  --basket-chart-height: 160px;
+  margin-top: 10px;
+  margin-bottom: 8px;
+}
+
+.rangeRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  margin-top: 10px;
+}
+
+.rangePill {
+  padding: 6px 4px;
+  border: 0;
+  background: none;
+  color: var(--app-text-tertiary);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.rangePillActive {
+  color: var(--app-text);
+  font-size: 15px;
+  font-weight: 900;
+}
+
+/* ── Legs ─────────────────────────────────────────────────────────────────── */
+
+.legs {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 6px;
+}
+
+.legRow {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  text-decoration: none;
+  transition: background-color 120ms ease, transform 120ms ease;
+}
+
+button.legRow:hover {
+  background: var(--app-bg-alt);
+}
+
+button.legRow:active {
+  transform: scale(0.98);
+}
+
+button.legRow:focus-visible {
+  outline: 3px solid var(--app-accent-blue);
+  outline-offset: 2px;
+}
+
+.legLogo {
+  display: flex;
+  flex: none;
+  width: 46px;
+  height: 46px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 23px;
+  background: var(--app-surface-alt);
+  font-size: 12px;
+  font-weight: 800;
+  overflow: hidden;
+}
+
+.legLogoImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.legCopy {
+  flex: 1;
+  min-width: 0;
+}
+
+.legTitle {
+  display: block;
+  overflow: hidden;
+  color: var(--app-text);
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.legWeight {
+  display: block;
+  margin-top: 4px;
+  color: var(--app-text-tertiary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.legMetrics {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: flex-end;
+  align-self: flex-start;
+  gap: 3px;
+}
+
+.legSidePill {
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: var(--font-figure);
+  font-size: 11px;
+  font-weight: 400;
+  font-synthesis-weight: none;
+  letter-spacing: -0.04em;
+}
+
+.legSidePillYes {
+  background: #e7f8ec;
+  color: #12833a;
+}
+
+.legSidePillNo {
+  background: #ffe9f5;
+  color: #c2117f;
+}
+
+.legPrice {
+  color: var(--app-text);
+  font-size: 16px;
+  line-height: 20px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.legPnl {
+  font-family: var(--font-figure);
+  font-size: 14px;
+  line-height: 18px;
+  font-weight: 400;
+  font-synthesis-weight: none;
+  letter-spacing: var(--font-figure-tracking);
+}
+
+.legPnlPositive {
+  color: var(--app-chart-positive);
+}
+
+.legPnlNegative {
+  color: var(--app-negative);
+}
+
+.legPnlMuted {
+  color: var(--app-text-tertiary);
+}
+
+.hiddenLegSummary {
+  display: flex;
+  min-height: 62px;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+}
+
+.hiddenLegStack {
+  display: flex;
+  align-items: center;
+  flex: none;
+  padding-left: 2px;
+  filter: blur(5px);
+  opacity: 0.66;
+  user-select: none;
+}
+
+.hiddenLegLogo {
+  display: flex;
+  width: 42px;
+  height: 42px;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--app-surface-alt);
+  box-shadow: 0 0 0 2px var(--app-bg);
+  color: var(--app-text-secondary);
+  font-size: 10px;
+  font-weight: 850;
+}
+
+.hiddenLegLogo + .hiddenLegLogo {
+  margin-left: -12px;
+}
+
+.hiddenLegLogoImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hiddenLegSummary strong {
+  color: var(--app-text-secondary);
+  font-size: 19px;
+  line-height: 24px;
+  font-weight: 850;
+  letter-spacing: -0.025em;
+}
+
+.hiddenLegPnl {
+  margin-left: auto;
+  color: var(--app-chart-positive);
+  filter: blur(5px);
+  font-family: var(--font-figure);
+  font-size: 14px;
+  line-height: 18px;
+  font-weight: 400;
+  font-synthesis-weight: none;
+  letter-spacing: var(--font-figure-tracking);
+  font-variant-numeric: tabular-nums;
+  opacity: 0.66;
+  user-select: none;
+}
+
+/* ── Thesis ───────────────────────────────────────────────────────────────── */
+
+.thesis {
+  /* Sits after the holdings on narrow screens, where the app keeps it. */
+  order: 4;
+  padding: 0 10px;
+}
+
+.thesisBody {
+  margin-top: 10px;
+}
+
+.thesisText {
+  color: var(--app-text);
+  font-size: 14px;
+  line-height: 21px;
+  font-weight: 500;
+}
+
+.thesisBullets {
+  margin-top: 10px;
+  padding-left: 18px;
+  color: var(--app-text-secondary);
+  font-size: 14px;
+  line-height: 21px;
+  font-weight: 500;
+}
+
+.thesisBullets li {
+  margin-bottom: 6px;
+}
+
+.showMoreButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 12px;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--app-bg-alt);
+  color: var(--app-text-secondary);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  opacity: 0.75;
+  cursor: pointer;
+}
+
+.showMoreButton:hover {
+  background: var(--app-surface-alt);
+  opacity: 1;
+}
+
+.showMoreButton svg {
+  width: 13px;
+  height: 13px;
+}
+
+/* ── BUY ─────────────────────────────────────────────────────────────────── */
+
+.buyButton {
+  order: 3;
+  display: flex;
+  min-height: 60px;
+  align-items: center;
+  justify-content: center;
+  margin: 16px 10px 0;
+  border-radius: 18px;
+  background: var(--app-accent-blue);
+  color: #ffffff;
+  font-family: var(--font-display), var(--font-primary);
+  font-size: 26px;
+  line-height: 26px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-decoration: none;
+  transition: transform 120ms ease, filter 120ms ease;
+}
+
+.buyButton:hover {
+  filter: brightness(1.04);
+}
+
+.buyButton:active {
+  transform: scale(0.97);
+}
+
+.buyButton:focus-visible {
+  outline: 3px solid var(--app-text);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .buyButton,
+  .legRow {
+    transition: none;
+  }
+}
+
+/* ── Asset modal ─────────────────────────────────────────────────────────── */
+
+.assetDialog {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 16px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+}
+
+.assetDialog[open] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.assetDialog::backdrop {
+  background: rgba(11, 22, 34, 0.46);
+  backdrop-filter: blur(8px);
+}
+
+.assetModal {
+  display: flex;
+  width: min(480px, 100%);
+  max-height: min(620px, calc(100svh - 32px));
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 20px;
+  background: var(--app-bg);
+  box-shadow: 0 24px 80px rgba(11, 22, 34, 0.28);
+}
+
+.assetModalHeader {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 16px 12px 20px;
+}
+
+.assetModalIdentity {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
+}
+
+.assetModalIdentity > div {
+  min-width: 0;
+}
+
+.assetModalIdentity h2 {
+  overflow: hidden;
+  font-size: 20px;
+  line-height: 24px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.assetModalIdentity div > span {
+  display: block;
+  margin-top: 1px;
+  color: var(--app-text-tertiary);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.assetModalClose {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: var(--app-surface-alt);
+  color: var(--app-text);
+  cursor: pointer;
+}
+
+.assetModalClose svg {
+  width: 20px;
+  height: 20px;
+}
+
+.assetModalClose:hover {
+  background: var(--app-border);
+}
+
+.assetModalClose:focus-visible {
+  outline: 3px solid var(--app-accent-blue);
+  outline-offset: 3px;
+}
+
+.assetModalContent {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 20px 20px;
+}
+
+.assetMarketCap {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--app-bg-alt);
+}
+
+.assetMarketCap span {
+  color: var(--app-text-tertiary);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.assetMarketCap strong {
+  font-size: 18px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.assetChangeGrid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 5px;
+  margin-top: 10px;
+}
+
+.assetChangeCell {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+  justify-items: center;
+  padding: 9px 2px;
+  border-radius: 10px;
+  background: var(--app-bg-alt);
+}
+
+.assetChangeCell > span {
+  color: var(--app-text-tertiary);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.assetChangeCell strong {
+  max-width: 100%;
+  overflow: hidden;
+  font-family: var(--font-figure);
+  font-size: 11px;
+  line-height: 14px;
+  font-weight: 400;
+  font-synthesis-weight: none;
+  letter-spacing: -0.1em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.assetChangeUp {
+  color: var(--app-chart-positive);
+}
+
+.assetChangeDown {
+  color: var(--app-negative);
+}
+
+.assetChangeFlat {
+  color: var(--app-text-tertiary);
+}
+
+.assetAbout {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--app-border);
+}
+
+.assetAbout h3 {
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.assetAbout p {
+  margin-top: 6px;
+  color: var(--app-text-secondary);
+  font-size: 14px;
+  line-height: 21px;
+  font-weight: 500;
+}
+
+@media (max-width: 600px) {
+  .assetDialog[open] {
+    align-items: center;
+    padding: 16px;
+  }
+
+  .assetModal {
+    max-height: calc(100svh - 32px);
+    border-radius: 20px;
+  }
+
+  .assetModalHeader {
+    padding: 14px 12px 10px 16px;
+  }
+
+  .assetModalContent {
+    padding: 0 16px 18px;
+  }
+}
+
+/* ── Wide screens ─────────────────────────────────────────────────────────────
+ *
+ * Same elements, same type, laid out as a page instead of a phone: the post,
+ * holdings and BUY on the left; the market numbers and chart on the right.
+ * Nothing is added or dropped at this breakpoint; the pieces just stop being
+ * stacked, and the figures step up to desktop reading sizes.
+ */
+@media (min-width: 960px) {
+  .page {
+    width: min(1120px, 100%);
+    padding: 28px 32px 64px;
+  }
+
+  .backButton {
+    margin-bottom: 22px;
+  }
+
+  .columns {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 56px;
+  }
+
+  .postColumn,
+  .marketColumn {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+  }
+
+  /* Each column is its own flex container now, so source order is the layout
+     and the narrow-screen `order` values have to stand down. */
+  .pnlRow,
+  .chartSection,
+  .rangeRow,
+  .legs,
+  .thesis,
+  .buyButton {
+    order: 0;
+  }
+
+  .avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 26px;
+  }
+
+  .displayName {
+    font-size: 19px;
+    line-height: 24px;
+  }
+
+  .handle,
+  .date,
+  .metaDot {
+    font-size: 15px;
+    line-height: 20px;
+  }
+
+  .xButton svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .postBody {
+    margin-top: 18px;
+    font-size: 22px;
+    line-height: 31px;
+  }
+
+  .postBodyClamped {
+    -webkit-line-clamp: 9;
+    line-clamp: 9;
+  }
+
+  .thesis {
+    max-width: 62ch;
+    margin-top: 22px;
+    padding: 0;
+  }
+
+  .pnlRow {
+    padding: 0 4px 4px;
+  }
+
+  .pnlValue {
+    font-size: 44px;
+  }
+
+  .pnlBasis {
+    font-size: 14px;
+  }
+
+  .chartSection {
+    --basket-chart-height: 300px;
+    --basket-chart-footer-size: 11px;
+    --basket-chart-inset: 0px;
+    margin-top: 14px;
+  }
+
+  .rangeRow {
+    justify-content: flex-start;
+    gap: 8px;
+    margin-top: 16px;
+    padding-left: 4px;
+  }
+
+  /* Enough of a target to click, and a hover state, now that there is a cursor. */
+  .rangePill {
+    padding: 7px 14px;
+    border-radius: 999px;
+  }
+
+  .rangePill:hover {
+    background: var(--app-bg-alt);
+    color: var(--app-text);
+  }
+
+  .rangePillActive,
+  .rangePillActive:hover {
+    background: var(--app-surface-alt);
+    color: var(--app-text);
+  }
+
+  .legs {
+    margin-top: 26px;
+    gap: 0;
+  }
+
+  /* Rows gain a rule between them: with more width, a wide gap alone stops
+     reading as a list. */
+  .legRow {
+    padding: 14px 10px;
+    border-radius: 12px;
+  }
+
+  .legRow + .legRow {
+    border-top: 1px solid var(--app-border);
+  }
+
+  .legTitle {
+    font-size: 17px;
+    line-height: 22px;
+  }
+
+  .legWeight {
+    font-size: 13px;
+  }
+
+  .legPrice {
+    font-size: 18px;
+    line-height: 22px;
+  }
+
+  .legPnl {
+    font-size: 15px;
+    line-height: 19px;
+  }
+
+  .buyButton {
+    min-height: 64px;
+    margin: 20px 0 0;
+  }
+}

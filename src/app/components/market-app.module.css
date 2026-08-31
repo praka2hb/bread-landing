@@ -1,0 +1,561 @@
+/*
+ * Read-only app surfaces: assets and people.
+ *
+ * Deliberately declares no colours of its own. Everything resolves against the
+ * custom properties scoped to `.shell` in sandwich-web.module.css, so there is
+ * only ever one copy of the palette to keep in sync. That palette is the app's
+ * light theme, unconditionally — these views have no dark variant.
+ */
+
+.pageHead {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(240px, 0.6fr);
+  gap: 32px;
+  align-items: end;
+  padding: 56px 0 32px;
+}
+
+.pageHead h1 {
+  max-width: 760px;
+  margin-top: 14px;
+  font-size: clamp(40px, 6vw, 72px);
+  font-weight: 880;
+  line-height: 0.94;
+  letter-spacing: -0.07em;
+  text-wrap: balance;
+}
+
+.pageHead p {
+  max-width: 460px;
+  color: var(--market-muted);
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+/* ── Asset logo ────────────────────────────────────────────────────────── */
+
+/*
+ * White tile, as in the app (`backgroundColor: colors.surface` on AssetLogo).
+ * Many issuer logos are light marks on transparent, so a grey tile swallows
+ * them entirely. `contain` keeps a non-square mark from being cropped.
+ */
+.assetLogo {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 auto;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid var(--app-border);
+  border-radius: 50%;
+  background: var(--app-surface);
+  color: var(--app-text-secondary);
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.assetLogo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.numeric {
+  font-size: 15px;
+  font-weight: 780;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* ── Stat grid ─────────────────────────────────────────────────────────── */
+
+/*
+ * Dividers are drawn per cell rather than by letting a `--market-line` grid
+ * background show through 1px gaps: an odd stat count leaves trailing cells
+ * empty, and with that trick they rendered as a solid grey block.
+ */
+.statGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid var(--market-line);
+  border-radius: 20px;
+  background: var(--market-card);
+}
+
+.stat {
+  display: grid;
+  gap: 6px;
+  padding: 16px 18px;
+  background: var(--market-card);
+  box-shadow: 0 0 0 1px var(--market-line);
+}
+
+.stat dt {
+  color: var(--market-muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.stat dd {
+  font-size: 19px;
+  font-weight: 840;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Asset sheet ───────────────────────────────────────────────────────────
+ *
+ * The asset page is the app's stock detail sheet, unrolled into a page: the
+ * same identity row, change wash, dotted-leader stats and green BUY bar as
+ * bread-mobile/src/components/stock-detail-sheet.tsx. Sizes are scaled up a
+ * step from the phone's, since a sheet on a 390px screen and a page on a
+ * desktop are read from different distances.
+ */
+
+.assetSheet {
+  position: relative;
+  padding-top: 8px;
+}
+
+/*
+ * The header wash: the change hue at ~9% alpha fading to nothing, so the top of
+ * the page reads green when the asset is up and magenta when it's down without
+ * darkening the mint underneath.
+ */
+.identityRow {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 0 8px;
+}
+
+/* Circular, as on the sheet — a white tile beneath, since issuer marks are
+   often light-on-transparent. */
+.assetHeroLogo {
+  display: grid;
+  width: 60px;
+  height: 60px;
+  flex: 0 0 auto;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid var(--app-border);
+  border-radius: 50%;
+  background: var(--app-surface);
+  color: var(--app-text-secondary);
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.assetHeroLogo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.identityCopy {
+  min-width: 0;
+  flex: 1;
+}
+
+.identityCopy h1 {
+  font-size: clamp(32px, 4.5vw, 44px);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+}
+
+.identityCopy p {
+  margin-top: -2px;
+  color: var(--app-text-tertiary);
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.identityPrice {
+  margin-left: auto;
+  text-align: right;
+}
+
+.identityPrice strong {
+  display: block;
+  font-size: clamp(30px, 4vw, 42px);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+.identityPrice span {
+  display: block;
+  margin-top: -2px;
+  font-size: 19px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The chart tracks `chartPositive`, a brighter green than the P&L `positive`. */
+.changeUp {
+  color: var(--app-chart-positive);
+}
+
+.changeDown {
+  color: var(--app-negative);
+}
+
+.changeFlat {
+  color: var(--app-text-tertiary);
+}
+
+.changeStrip {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+  gap: 8px;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--app-bg-alt);
+}
+
+.changeCell {
+  display: grid;
+  gap: 4px;
+  justify-items: center;
+  padding: 6px 0;
+  border-radius: 8px;
+}
+
+.changeCellActive {
+  background: var(--app-surface-alt);
+}
+
+.changeCellLabel {
+  color: var(--app-text-tertiary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.changeCell strong {
+  font-size: 16px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Sheet sections ────────────────────────────────────────────────────── */
+
+.sheetSection {
+  padding-top: 26px;
+}
+
+.sheetSectionHead {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding-bottom: 4px;
+}
+
+/* Tab-label weight, as the sheet's About / Sandwiches / Holders row. */
+.sheetSectionHead h2 {
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: -0.035em;
+}
+
+.sheetSectionHead span {
+  margin-left: auto;
+  color: var(--app-text-tertiary);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.leaderRow {
+  display: flex;
+  align-items: baseline;
+  padding: 11px 0;
+}
+
+.leaderLabel {
+  color: var(--app-text-tertiary);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.leaderDots {
+  flex: 1;
+  margin: 0 8px;
+  border-bottom: 1.5px dotted var(--app-border);
+}
+
+.leaderValue {
+  font-size: 16px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.aboutText {
+  max-width: 68ch;
+  margin-top: 6px;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+.aboutEmpty {
+  margin-top: 10px;
+  color: var(--app-text-tertiary);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* ── Buy bar ───────────────────────────────────────────────────────────── */
+
+/*
+ * Rides the bottom of the viewport like the sheet's floating BUY, with the
+ * page fading out underneath it rather than a hard bar edge.
+ */
+.buyBar {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  margin-top: 32px;
+  padding: 22px 0 24px;
+  background: linear-gradient(180deg, transparent, var(--app-bg) 42%);
+}
+
+.buyButton {
+  display: flex;
+  width: 100%;
+  min-height: 60px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 18px;
+  background: var(--app-accent);
+  color: #ffffff;
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  text-shadow: 0 0 6px rgba(53, 240, 70, 0.4);
+}
+
+.buyButton:focus-visible {
+  outline: 3px solid var(--app-text);
+  outline-offset: 3px;
+}
+
+.buyNote {
+  color: var(--app-text-tertiary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* ── Profile ───────────────────────────────────────────────────────────── */
+
+.profileHero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 24px;
+  padding: 36px 0 28px;
+}
+
+.avatar {
+  display: grid;
+  width: 96px;
+  height: 96px;
+  flex: 0 0 auto;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 50%;
+  border: 1px solid var(--market-line);
+  background: var(--market-soft);
+  color: var(--market-accent);
+  font-size: 34px;
+  font-weight: 900;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profileCopy h1 {
+  font-size: clamp(32px, 4.5vw, 52px);
+  font-weight: 880;
+  line-height: 1;
+  letter-spacing: -0.055em;
+}
+
+.profileHandle {
+  margin-top: 8px;
+  color: var(--market-muted);
+  font-size: 15px;
+  font-weight: 750;
+}
+
+.profileBio {
+  max-width: 560px;
+  margin-top: 12px;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.profileCounts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  margin-top: 16px;
+}
+
+.profileCount {
+  color: var(--market-muted);
+  font-size: 14px;
+}
+
+.profileCount strong {
+  color: var(--market-ink);
+  font-weight: 850;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Wraps rather than overflowing: a profile shows a shortened address, but the
+   asset sheet prints a full 44-character mint. */
+.walletChip {
+  display: inline-flex;
+  max-width: 100%;
+  min-height: 30px;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 6px 12px;
+  border: 1px solid var(--market-line);
+  border-radius: 999px;
+  color: var(--market-muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+/* ── Holdings ──────────────────────────────────────────────────────────── */
+
+.holdingRow {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 0;
+  border-top: 1px solid var(--market-line);
+  color: inherit;
+  text-decoration: none;
+}
+
+.holdingRow:first-of-type {
+  border-top: 0;
+}
+
+.holdingRow strong {
+  font-size: 15px;
+  font-weight: 820;
+}
+
+.holdingRow small {
+  display: block;
+  margin-top: 2px;
+  color: var(--market-muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* ── Misc ──────────────────────────────────────────────────────────────── */
+
+.sectionNote {
+  color: var(--market-muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.readOnlyBanner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+  padding: 14px 18px;
+  border: 1px dashed var(--market-line);
+  border-radius: 18px;
+  color: var(--market-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.readOnlyBanner strong {
+  color: var(--market-ink);
+  font-weight: 820;
+}
+
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.bottomSpace {
+  padding-bottom: 80px;
+}
+
+/* A profile is a reading column, not a dashboard — it holds feed cards, which
+   have a fixed comfortable measure in the app. */
+.narrow {
+  max-width: 720px;
+}
+
+@media (max-width: 900px) {
+  .pageHead {
+    grid-template-columns: 1fr;
+    gap: 18px;
+    padding: 40px 0 24px;
+  }
+}
+
+@media (max-width: 640px) {
+  .profileHero {
+    gap: 16px;
+  }
+
+  /* The price drops under the name rather than squeezing beside it. */
+  .identityRow {
+    gap: 12px;
+  }
+
+  .identityCopy {
+    flex-basis: calc(100% - 74px);
+  }
+
+  .identityPrice {
+    margin-left: 0;
+    text-align: left;
+  }
+
+  .sheetSectionHead h2 {
+    font-size: 23px;
+  }
+
+  .buyButton {
+    min-height: 56px;
+    font-size: 21px;
+  }
+}

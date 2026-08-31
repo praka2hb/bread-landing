@@ -1,0 +1,264 @@
+.main {
+  display: grid;
+  min-height: 100svh;
+  place-items: center;
+  padding: 124px 48px 48px;
+  background: var(--bg);
+}
+
+.intro {
+  width: 100%;
+  max-width: 66ch;
+  color: var(--ink);
+  font-size: clamp(1.25rem, 1.6vw, 1.5rem);
+  font-weight: 500;
+  line-height: 1.55;
+  letter-spacing: -0.02em;
+}
+
+.intro p + p {
+  margin-top: 1.25em;
+}
+
+.inlineWordmark {
+  position: relative;
+  display: inline-block;
+  width: 4.7em;
+  height: 1.08em;
+  overflow: hidden;
+  line-height: 0;
+  vertical-align: -0.19em;
+}
+
+.breadWordmark {
+  position: absolute;
+  top: -0.36em;
+  left: 0;
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.bridgeLine {
+  display: block;
+  margin-bottom: 0.45em;
+  font-size: 1.4em;
+  line-height: 1.25;
+  letter-spacing: -0.025em;
+}
+
+.inlineSandwich {
+  font-family: "SF Pro Text", "SF Pro Display", -apple-system,
+    BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+  font-style: italic;
+  font-weight: 600;
+}
+
+.bridgeLineSerif {
+  font-family: "Times New Roman", Times, serif;
+}
+
+.internetWord {
+  display: inline-flex;
+  align-items: baseline;
+  color: var(--ink);
+  font-family: "Times New Roman", Times, serif;
+  font-size: 1.08em;
+  font-weight: 700;
+  letter-spacing: -0.045em;
+  line-height: inherit;
+  white-space: nowrap;
+}
+
+.internetWord > span {
+  display: inline-block;
+}
+
+.internetExplorerIcon {
+  width: 0.68em;
+  height: 0.92em;
+  margin: 0 -0.04em 0 -0.01em;
+  line-height: 0;
+  transform: translateY(0.16em);
+}
+
+.internetExplorerImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform: scale(1.28);
+  transform-origin: center;
+}
+
+.selectionHighlight {
+  padding: 0.08em 0.02em;
+  background: rgba(0, 191, 255, 0.3);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  color: inherit;
+}
+
+.dictionaryEntry {
+  --font-dictionary: "SF Pro Text", "SF Pro Display", -apple-system,
+    BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+  margin-top: 0.8em;
+  padding: 0.9em 0 1em;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  font-family: var(--font-dictionary);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.dictionaryEntry + p {
+  margin-top: 1.25em;
+}
+
+.dictionaryTerm {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25em 0.6em;
+  font-size: 1.55em;
+  font-weight: 750;
+  line-height: 1.15;
+  letter-spacing: -0.035em;
+}
+
+.pronunciation {
+  color: var(--muted);
+  font-size: 0.48em;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.dictionaryDefinition {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.65em;
+  margin-top: 0.65em;
+}
+
+.partOfSpeech {
+  color: var(--muted);
+  font-size: 0.8em;
+  font-style: italic;
+  font-weight: 650;
+}
+
+.sourceIcons {
+  --youtube-red: #ff0000;
+  --substack-orange: #ff6719;
+  display: inline-grid;
+  width: 1.05em;
+  height: 1.05em;
+  place-items: center;
+  vertical-align: -0.16em;
+}
+
+.sourceIcons > svg,
+.sourceIcons > img {
+  grid-area: 1 / 1;
+  width: 1.05em;
+  height: 1.05em;
+  visibility: hidden;
+  opacity: 0;
+}
+
+.sourceIcons > svg {
+  fill: currentColor;
+}
+
+.sourceIcons > :first-child {
+  visibility: visible;
+  opacity: 1;
+}
+
+.youtubeIcon {
+  color: var(--youtube-red);
+}
+
+.xIcon {
+  color: var(--ink);
+}
+
+.substackIcon {
+  color: var(--substack-orange);
+}
+
+.sourceIcons > .sourceInternetExplorerIcon {
+  width: 1.35em;
+  height: 1.35em;
+  object-fit: contain;
+}
+
+.sourceIcons .outlineSourceIcon {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+@keyframes sourceIconCycle {
+  0% {
+    visibility: visible;
+    opacity: 1;
+    transform: scale(0.9);
+  }
+
+  1.5%,
+  19.9% {
+    visibility: visible;
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  20%,
+  100% {
+    visibility: hidden;
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .sourceIcons > svg,
+  .sourceIcons > img {
+    animation: sourceIconCycle 6s cubic-bezier(0, 0, 0.2, 1) infinite;
+    transform-origin: center;
+  }
+
+  .sourceIcons > :nth-child(2) {
+    animation-delay: 1.2s;
+  }
+
+  .sourceIcons > :nth-child(3) {
+    animation-delay: 2.4s;
+  }
+
+  .sourceIcons > :nth-child(4) {
+    animation-delay: 3.6s;
+  }
+
+  .sourceIcons > :nth-child(5) {
+    animation-delay: 4.8s;
+  }
+}
+
+@media (max-width: 560px) {
+  .main {
+    padding: 108px 28px 40px;
+  }
+
+  .intro {
+    font-size: 1.125rem;
+    line-height: 1.6;
+  }
+
+  .bridgeLine {
+    font-size: 1.25em;
+    line-height: 1.3;
+  }
+}

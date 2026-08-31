@@ -3,8 +3,9 @@
   "configurations": [
     {
       "name": "bread-preview",
+      "autoPort": true,
       "runtimeExecutable": "/Users/vighneshs/.nvm/versions/node/v22.12.0/bin/node",
-      "runtimeArgs": ["node_modules/next/dist/bin/next", "dev", "--port", "3000"],
+      "runtimeArgs": ["node_modules/next/dist/bin/next", "dev"],
       "port": 3000
     }
   ]

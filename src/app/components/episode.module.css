@@ -1,0 +1,1012 @@
+/* The video-sourced sandwich workspace: calls on the left, player on the right. */
+
+.episode {
+  --pnl-figure-tracking: -0.16em;
+
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 28px 0 96px;
+}
+
+.videoIntro {
+  margin-bottom: 24px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 18px;
+}
+
+.avatar {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 auto;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--app-surface-alt);
+  color: var(--app-text-secondary);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bylineLink {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.handle {
+  overflow: hidden;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.handleAt {
+  color: var(--app-text-secondary);
+  font-weight: 550;
+}
+
+.bylineIdentity {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 5px;
+}
+
+.verified {
+  display: block;
+  width: 17px;
+  height: 17px;
+  flex: 0 0 auto;
+  color: var(--app-accent-blue);
+  transform: translateY(-1px);
+}
+
+/* Where it came from, under the title rather than under the byline: the channel
+   is the citation for the video, not the name the episode is filed under. */
+.sourceLine {
+  display: block;
+  margin-top: 10px;
+  color: var(--app-text-tertiary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sourceLine a {
+  color: inherit;
+  text-underline-offset: 3px;
+}
+
+.title {
+  max-width: 900px;
+  font-size: clamp(22px, 2.6vw, 30px);
+  font-weight: 850;
+  line-height: 1.18;
+  letter-spacing: -0.04em;
+  text-wrap: balance;
+}
+
+.workspace {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.videoColumn {
+  order: 0;
+  min-width: 0;
+}
+
+/* Lifted out from behind the backdrop while a call is open. Sticky already made
+   this a stacking context, so the z-index has to go here and not on `.player`. */
+.videoColumnRaised {
+  position: relative;
+  z-index: 60;
+}
+
+/* Only the clip earns the exemption. The heading around it belongs to the page
+   underneath, so it goes soft with everything else. */
+.videoColumnRaised .videoIntro,
+.videoColumnRaised .watchLink {
+  opacity: 0.3;
+  filter: blur(4px);
+  pointer-events: none;
+}
+
+.assetsColumn {
+  order: 1;
+  min-width: 0;
+}
+
+.sectionHeading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 12px;
+}
+
+.sectionHeading h2 {
+  font-size: 22px;
+  font-weight: 850;
+  letter-spacing: -0.035em;
+}
+
+.sectionHeading span {
+  color: var(--app-text-tertiary);
+  font-size: 12px;
+  font-weight: 650;
+}
+
+/* ── Player ────────────────────────────────────────────────────────────── */
+
+.player {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--app-border);
+  border-radius: 18px;
+  background: #000000;
+  aspect-ratio: 16 / 9;
+}
+
+.player iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.poster {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: #000000;
+  cursor: pointer;
+}
+
+.poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.82;
+}
+
+.playBadge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  width: 72px;
+  height: 72px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--app-accent-blue);
+  color: #ffffff;
+  transform: translate(-50%, -50%);
+}
+
+.playBadge svg {
+  width: 32px;
+  height: 32px;
+  margin-left: 3px;
+}
+
+.posterLabel {
+  position: absolute;
+  right: 14px;
+  bottom: 12px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.62);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.watchLink {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  color: var(--app-text-tertiary);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.watchLink:hover {
+  color: var(--app-text-secondary);
+}
+
+/* ── Asset selector ────────────────────────────────────────────────────── */
+
+.callList {
+  border-top: 1px solid var(--app-border);
+  list-style: none;
+}
+
+.callItem {
+  border-bottom: 1px solid var(--app-border);
+}
+
+/* The calls the preview holds back. Lifted from the sandwich detail page's
+   hidden legs: you can see there are more and roughly what they are, but not
+   which or how well — the app is where the list finishes. */
+.hiddenCalls {
+  display: flex;
+  min-height: 62px;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--app-border);
+}
+
+.hiddenStack {
+  display: flex;
+  flex: none;
+  align-items: center;
+  padding-left: 2px;
+  filter: blur(5px);
+  opacity: 0.66;
+  user-select: none;
+}
+
+.hiddenLogo {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--app-surface-alt);
+  box-shadow: 0 0 0 2px var(--app-bg);
+  color: var(--app-text-secondary);
+  font-size: 10px;
+  font-weight: 850;
+}
+
+.hiddenLogo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.hiddenLogo + .hiddenLogo {
+  margin-left: -12px;
+}
+
+.hiddenCalls strong {
+  color: var(--app-text-secondary);
+  font-size: 17px;
+  font-weight: 850;
+  letter-spacing: -0.025em;
+}
+
+.hiddenPct {
+  composes: figureFace;
+  font-family: var(--font-figure);
+  font-weight: 400;
+  letter-spacing: var(--pnl-figure-tracking);
+  margin-left: auto;
+  color: var(--app-positive);
+  filter: blur(5px);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.66;
+  user-select: none;
+}
+
+.buyButton {
+  display: flex;
+  width: 100%;
+  min-height: 56px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 16px;
+  border-radius: 16px;
+  background: var(--app-accent-blue);
+  color: #ffffff;
+  font-size: 19px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  transition: filter 120ms ease, transform 120ms ease;
+}
+
+.callSelect {
+  display: grid;
+  width: 100%;
+  min-height: 72px;
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 8px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+}
+
+/* An asset the episode came back to more than once: named here, with its calls
+   filed underneath, instead of repeating its logo and ticker once per call down
+   the list. */
+.groupHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 8px 4px;
+}
+
+.groupIdentity {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: 7px;
+}
+
+.groupCount {
+  composes: figureFace;
+  flex: 0 0 auto;
+  color: var(--app-text-tertiary);
+  font-size: 11px;
+}
+
+/* The theses hang off a rail dropped from the middle of the asset's mark
+   (8px of padding + half of a 34px logo), so the indent reads as belonging to
+   it rather than as a stray margin. */
+.thesisList {
+  margin-left: 25px;
+  padding-bottom: 6px;
+  border-left: 1px solid var(--app-border);
+  list-style: none;
+}
+
+.thesisSelect {
+  min-height: 56px;
+  /* Three columns, not four: the logo slot is gone with the logo. */
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  padding-left: 12px;
+}
+
+.callSelect:hover,
+.callSelected {
+  background: color-mix(in srgb, var(--app-surface-alt) 60%, transparent);
+}
+
+.callSelected {
+  box-shadow: inset 3px 0 0 var(--app-accent-blue);
+}
+
+/* Shared numeric sizing stays in SF Pro Rounded. P&L values and side labels
+   opt into Rubik Mono One below. */
+.figureFace {
+  font-family: var(--font-primary);
+  font-weight: 800;
+  font-synthesis-weight: none;
+  letter-spacing: -0.02em;
+}
+
+.tsChip {
+  composes: figureFace;
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
+  gap: 5px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--app-accent-blue) 12%, transparent);
+  color: var(--app-accent-blue);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.tsChip svg {
+  width: 9px;
+  height: 9px;
+}
+
+.tsChipActive {
+  background: var(--app-accent-blue);
+  color: #ffffff;
+}
+
+.tsChipUnavailable {
+  background: var(--app-surface-alt);
+  color: var(--app-text-tertiary);
+}
+
+.callLogo {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid var(--app-border);
+  border-radius: 50%;
+  background: var(--app-surface);
+  color: var(--app-text-secondary);
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.callLogo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.callMain {
+  min-width: 0;
+}
+
+.callMeta {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+}
+
+.callTicker {
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.sideLong,
+.sideShort {
+  composes: figureFace;
+  font-family: var(--font-figure);
+  font-weight: 400;
+  letter-spacing: -0.06em;
+}
+
+.extraLegs {
+  composes: figureFace;
+  flex: 0 0 auto;
+  font-size: 11px;
+}
+
+.sideLong,
+.sideShort {
+  flex: 0 0 auto;
+  font-size: 11px;
+}
+
+.sideLong {
+  color: var(--app-positive);
+}
+
+.sideShort {
+  color: var(--app-negative);
+}
+
+.extraLegs {
+  color: var(--app-text-tertiary);
+}
+
+.callQuote {
+  display: block;
+  overflow: hidden;
+  margin-top: 3px;
+  color: var(--app-text-secondary);
+  font-size: 13px;
+  line-height: 18px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.callPct {
+  composes: figureFace;
+  font-family: var(--font-figure);
+  font-weight: 400;
+  letter-spacing: var(--pnl-figure-tracking);
+  /* Wide enough for the longest reading the list can hold — `-11.09%` — so the
+     column stays a column instead of ragging with each row's magnitude. */
+  min-width: 76px;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.pctUp {
+  color: var(--app-positive);
+}
+
+.pctDown {
+  color: var(--app-negative);
+}
+
+.pctFlat {
+  color: var(--app-text-tertiary);
+}
+
+/* ── The open call's dialog ────────────────────────────────────────────────
+   A call reads as one thing at a time now: the page behind it goes soft, and
+   only the player stays sharp, because the click that opened this also cued the
+   moment it came from. */
+
+.backdrop {
+  position: fixed;
+  z-index: 40;
+  background: color-mix(in srgb, var(--app-text) 22%, transparent);
+  backdrop-filter: blur(14px) saturate(120%);
+  inset: 0;
+  animation: backdropIn 180ms ease-out both;
+}
+
+@keyframes backdropIn {
+  from {
+    opacity: 0;
+  }
+}
+
+/* The layer is a positioning frame, not a surface: pointer events belong to the
+   panel, so a click anywhere else still reaches the backdrop and closes. */
+.modalLayer {
+  position: fixed;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  pointer-events: none;
+  inset: 0;
+}
+
+.modal {
+  display: flex;
+  width: min(560px, 100%);
+  max-height: 100%;
+  flex-direction: column;
+  padding: 20px;
+  border: 1px solid var(--app-border);
+  border-radius: 24px;
+  background: var(--app-bg);
+  box-shadow: 0 32px 80px -24px rgba(11, 22, 34, 0.4);
+  pointer-events: auto;
+  animation: modalIn 200ms cubic-bezier(0.2, 0.9, 0.3, 1) both;
+}
+
+.modal:focus {
+  outline: none;
+}
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop,
+  .modal {
+    animation: none;
+  }
+}
+
+.modalHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--app-border);
+}
+
+/* The identity is the part that gives: the badge and the close control are
+   fixed, so anything too narrow shortens the ticker rather than sliding the
+   number over the top of it. */
+.modalIdentity {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 9px;
+}
+
+/* Reversed in the DOM order sense: `row-reverse` plus a reversed z-index would
+   be the other way to overlap these, but painting order already puts each mark
+   over the one before it, which is the direction a stack should tuck. */
+.stack {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+}
+
+/* The ring is whatever the stack is sitting on, so the marks read as tucked
+   behind each other rather than outlined. */
+.stackLogo {
+  border: 2px solid var(--stack-ring, var(--app-bg));
+}
+
+.stackLogo + .stackLogo {
+  margin-left: -12px;
+}
+
+.stackMore {
+  background: var(--app-surface-alt);
+  color: var(--app-text-secondary);
+  font-size: 11px;
+}
+
+/* A basket's marks and its return, read as one thing. */
+.pnlBadge {
+  --stack-ring: var(--app-surface-alt);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 16px 6px 7px;
+  border-radius: 999px;
+  background: var(--app-surface-alt);
+  white-space: nowrap;
+}
+
+.pnlBadge .stackLogo {
+  width: 30px;
+  height: 30px;
+}
+
+/* At phone widths the badge, the ticker and the close control do not all fit at
+   full size, and the one that must not shrink is the close control. */
+@media (max-width: 600px) {
+  .pnlBadge {
+    gap: 7px;
+    padding: 5px 12px 5px 5px;
+  }
+
+  .pnlBadge .stackLogo {
+    width: 26px;
+    height: 26px;
+  }
+
+  .pnlBadge .stackLogo + .stackLogo {
+    margin-left: -10px;
+  }
+
+  .pnlBadge .modalPnlValue {
+    font-size: 18px;
+  }
+}
+
+.modalIdentityCopy {
+  min-width: 0;
+}
+
+.modalTicker {
+  display: block;
+  overflow: hidden;
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.modalIdentityMeta {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 1px;
+}
+
+.modalStamp {
+  composes: figureFace;
+  color: var(--app-text-tertiary);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Top right, in the display face the app sets its big figures in. */
+.modalPnl {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-left: auto;
+}
+
+.modalPnlValue {
+  composes: figureFace;
+  font-family: var(--font-figure);
+  font-weight: 400;
+  font-size: 28px;
+  line-height: 1;
+  letter-spacing: var(--pnl-figure-tracking);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Inside the badge the number shares its line with the marks, so it comes down
+   to where the two read as one row rather than a number with logos glued on. */
+.pnlBadge .modalPnlValue {
+  font-size: 22px;
+}
+
+.modalPnlBasis {
+  margin-top: 4px;
+  color: var(--app-text-tertiary);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.modalClose {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: var(--app-surface-alt);
+  color: var(--app-text-secondary);
+  cursor: pointer;
+}
+
+.modalClose svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Only the body scrolls, so the ticker, the percentage and BUY stay put. */
+.modalBody {
+  overflow-y: auto;
+  padding-top: 16px;
+  overscroll-behavior: contain;
+}
+
+.modalBuy {
+  display: flex;
+  min-height: 52px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 16px;
+  border-radius: 16px;
+  background: var(--app-accent-blue);
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  transition: filter 120ms ease, transform 120ms ease;
+}
+
+.modalBuy:active {
+  transform: scale(0.99);
+}
+
+/* The cited account leads, because what follows is its words and not ours. */
+.modalAttribution {
+  display: block;
+  color: var(--app-text-tertiary);
+  font-size: 12px;
+  font-weight: 750;
+}
+
+/* The quote is the citation, not the point: three lines of it place the moment,
+   and the explanation under it carries the weight. */
+.modalQuote {
+  display: -webkit-box;
+  overflow: hidden;
+  margin-top: 6px;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  color: var(--app-text-secondary);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+.whyLine {
+  display: block;
+  margin-top: 20px;
+  color: var(--app-text);
+  font-size: 18px;
+  font-weight: 850;
+  letter-spacing: -0.025em;
+}
+
+.whyTicker {
+  color: var(--app-accent-blue);
+}
+
+.modalWhy {
+  margin-top: 10px;
+  color: var(--app-text);
+  font-size: 21px;
+  font-weight: 800;
+  line-height: 1.32;
+  letter-spacing: -0.025em;
+  text-wrap: pretty;
+}
+
+.emptyCalls {
+  display: flex;
+  min-height: 180px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border-top: 1px solid var(--app-border);
+  color: var(--app-text-secondary);
+  text-align: center;
+}
+
+.emptyCalls strong {
+  color: var(--app-text);
+  font-size: 16px;
+}
+
+.emptyCalls span {
+  font-size: 13px;
+}
+
+.poster:focus-visible,
+.callSelect:focus-visible,
+.buyButton:focus-visible,
+.watchLink:focus-visible,
+.sourceLine a:focus-visible,
+.bylineLink:focus-visible,
+.modalClose:focus-visible,
+.modalBuy:focus-visible {
+  outline: 3px solid var(--app-accent-blue);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) {
+  .buyButton:hover,
+  .modalBuy:hover {
+    filter: brightness(1.05);
+  }
+
+  .modalClose:hover {
+    background: var(--app-surface-selected);
+    color: var(--app-text);
+  }
+
+  a.bylineLink:hover .handle {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+}
+
+.buyButton:active {
+  transform: scale(0.98);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .buyButton,
+  .modalBuy {
+    transition: none;
+  }
+}
+
+/* The panel is centred only until there is a player to avoid. From the wide
+   breakpoint up it sits over the calls column instead, so the clip it lifted
+   above the backdrop is not the thing covering the reading. */
+@media (min-width: 900px) {
+  .modalLayer {
+    justify-content: flex-start;
+    padding-left: max(16px, calc((100vw - 1120px) / 2));
+  }
+
+  .modal {
+    width: min(480px, 40vw);
+  }
+}
+
+/* Narrow: the player leaves the flow for a pinned strip at the top, and the
+   panel becomes a sheet under it. */
+@media (max-width: 899px) {
+  .videoColumnRaised .videoIntro,
+  .videoColumnRaised .watchLink {
+    display: none;
+  }
+
+  .videoColumnRaised .player {
+    position: fixed;
+    z-index: 60;
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    border-radius: 14px;
+  }
+
+  .modalLayer {
+    align-items: flex-end;
+    /* Clears the pinned 16:9 strip: 10px inset each side, plus its top gap. */
+    padding-top: calc((100vw - 20px) * 9 / 16 + 22px);
+    padding-bottom: 10px;
+  }
+}
+
+@media (min-width: 900px) {
+  .workspace {
+    display: grid;
+    grid-template-columns: minmax(360px, 0.82fr) minmax(0, 1.18fr);
+    align-items: start;
+    gap: 40px;
+  }
+
+  .assetsColumn {
+    order: 0;
+    /* 44px byline + 18px header spacing puts the calls heading on the video's
+       title line now that the separate back link is gone. */
+    padding-top: 62px;
+  }
+
+  /* Nothing is pinned above the episode any more, so the player sticks to the
+     window itself rather than clearing a header that is no longer there. */
+  .videoColumn {
+    position: sticky;
+    top: 24px;
+    order: 1;
+  }
+}
+
+@media (max-width: 600px) {
+  .sectionHeading span,
+  .callQuote {
+    display: none;
+  }
+
+  .callSelect {
+    gap: 8px;
+    padding-right: 4px;
+    padding-left: 4px;
+  }
+
+  .tsChip {
+    padding: 0 8px;
+  }
+
+  .callLogo {
+    width: 32px;
+    height: 32px;
+  }
+
+  .groupHeader {
+    padding-right: 4px;
+    padding-left: 4px;
+  }
+
+  .thesisList {
+    margin-left: 20px;
+  }
+
+  .thesisSelect {
+    padding-left: 8px;
+  }
+
+  .callPct {
+    min-width: 66px;
+    font-size: 13px;
+  }
+
+  .modalPnlValue {
+    font-size: 24px;
+  }
+
+  .modalWhy {
+    font-size: 19px;
+  }
+}

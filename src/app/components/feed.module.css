@@ -1,0 +1,480 @@
+/*
+ * The app's For You card, on the web.
+ *
+ * Geometry is ported 1:1 from `makeStyles` in
+ * bread-mobile/src/screens/sandwich-screen.tsx — 34px avatar, 10px gutter, 20px
+ * vertical padding, hairline rule, 44px action slots, pill pushed out on
+ * `margin-left: auto`. Colours resolve against the `--app-*` tokens on `.shell`.
+ *
+ * Every one of those numbers is multiplied by `--feed-scale`, which steps up on
+ * wider viewports: the phone's proportions are right for a phone, but rendered
+ * unscaled on a desktop they read as a screenshot of an app rather than as the
+ * page. The ratios never change — only the unit they are drawn at. The scale is
+ * 1 on phones, so the app-sized rendering is preserved exactly where it belongs.
+ *
+ * `--feed-scale` is declared on both `.feed` and `.fab` because the compose
+ * button is a sibling of the feed, not a child. Every reader falls back to 1 so
+ * a card rendered outside `.feed` (the profile page) keeps app scale.
+ */
+
+.feed,
+.fab {
+  --feed-scale: 1;
+}
+
+@media (min-width: 900px) {
+  .feed,
+  .fab {
+    --feed-scale: 1.15;
+  }
+}
+
+@media (min-width: 1280px) {
+  .feed,
+  .fab {
+    --feed-scale: 1.3;
+  }
+}
+
+.feed {
+  max-width: calc(620px * var(--feed-scale, 1));
+  margin: 0 auto;
+  padding-bottom: 96px;
+}
+
+/* ── Tabs ──────────────────────────────────────────────────────────────── */
+
+.tabs {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: calc(12px * var(--feed-scale, 1));
+  padding: calc(12px * var(--feed-scale, 1)) 0 calc(16px * var(--feed-scale, 1));
+}
+
+.tab {
+  display: inline-flex;
+  min-height: calc(44px * var(--feed-scale, 1));
+  align-items: center;
+  justify-content: center;
+  padding: 0 calc(10px * var(--feed-scale, 1));
+  color: var(--app-text-tertiary);
+  font-size: calc(15px * var(--feed-scale, 1));
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+}
+
+.tab:hover {
+  color: var(--app-text-secondary);
+}
+
+.tab:focus-visible {
+  outline: 3px solid var(--app-accent-blue);
+  outline-offset: 2px;
+}
+
+.tabActive {
+  color: var(--app-text);
+  font-size: calc(20px * var(--feed-scale, 1));
+  font-weight: 850;
+  letter-spacing: -0.025em;
+}
+
+.tabActive:hover {
+  color: var(--app-text);
+}
+
+/* ── Card ──────────────────────────────────────────────────────────────── */
+
+.card {
+  display: flex;
+  align-items: flex-start;
+  gap: calc(10px * var(--feed-scale, 1));
+  padding: calc(20px * var(--feed-scale, 1)) 2px;
+  border-bottom: 1px solid var(--app-border);
+  color: inherit;
+  text-decoration: none;
+}
+
+.card:hover {
+  background: color-mix(in srgb, var(--app-surface-alt) 40%, transparent);
+}
+
+.card:focus-visible {
+  outline: 3px solid var(--app-accent-blue);
+  outline-offset: -3px;
+}
+
+.avatar {
+  display: grid;
+  width: calc(34px * var(--feed-scale, 1));
+  height: calc(34px * var(--feed-scale, 1));
+  flex: 0 0 auto;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--app-surface-alt);
+  color: var(--app-text-secondary);
+  font-size: calc(13px * var(--feed-scale, 1));
+  font-weight: 700;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.content {
+  min-width: 0;
+  flex: 1;
+}
+
+.creatorRow {
+  display: flex;
+  align-items: center;
+  gap: calc(5px * var(--feed-scale, 1));
+  margin-bottom: calc(3px * var(--feed-scale, 1));
+}
+
+.handle {
+  min-width: 0;
+  flex-shrink: 1;
+  overflow: hidden;
+  color: var(--app-text);
+  font-size: calc(15px * var(--feed-scale, 1));
+  font-weight: 700;
+  line-height: calc(19px * var(--feed-scale, 1));
+  opacity: 0.92;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* A cited account sits one step back from a builder's byline. */
+.handleSource {
+  color: var(--app-text-secondary);
+  opacity: 1;
+}
+
+.handleAt {
+  color: var(--app-text-tertiary);
+  font-size: calc(13px * var(--feed-scale, 1));
+  font-weight: 600;
+}
+
+.verified {
+  width: calc(15px * var(--feed-scale, 1));
+  height: calc(15px * var(--feed-scale, 1));
+  flex: 0 0 auto;
+  color: var(--app-accent-blue);
+}
+
+.sourceMark {
+  width: calc(13px * var(--feed-scale, 1));
+  height: calc(13px * var(--feed-scale, 1));
+  flex: 0 0 auto;
+  color: var(--app-text-tertiary);
+}
+
+.venueBadge {
+  flex: 0 0 auto;
+  padding: calc(2px * var(--feed-scale, 1)) calc(6px * var(--feed-scale, 1));
+  border-radius: calc(6px * var(--feed-scale, 1));
+  background: var(--app-surface-alt);
+  color: var(--app-text-secondary);
+  font-size: calc(9px * var(--feed-scale, 1));
+  font-weight: 800;
+  text-transform: capitalize;
+}
+
+.venueBadgePerp {
+  background: var(--app-perp);
+  color: #ffffff;
+}
+
+.recordBadge {
+  flex: 0 0 auto;
+  color: var(--app-text-tertiary);
+  font-size: calc(11px * var(--feed-scale, 1));
+  font-weight: 700;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.timestamp {
+  flex: 0 0 auto;
+  color: var(--app-text-tertiary);
+  font-size: calc(13px * var(--feed-scale, 1));
+  font-weight: 600;
+}
+
+.thesis {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--app-text);
+  font-size: calc(16px * var(--feed-scale, 1));
+  font-weight: 500;
+  line-height: calc(23px * var(--feed-scale, 1));
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 6;
+}
+
+/* ── Episode card ──────────────────────────────────────────────────────── */
+
+/* "11 calls" is a count, not a venue — it keeps its lowercase noun. */
+.callCountBadge {
+  text-transform: none;
+}
+
+/*
+ * The video an episode card is built from. It is the card's body, so it takes
+ * the width of the text column rather than sitting as a thumbnail beside it —
+ * the same treatment the app gives a source video.
+ */
+.videoThumb {
+  position: relative;
+  display: block;
+  margin-top: calc(10px * var(--feed-scale, 1));
+  overflow: hidden;
+  border: 1px solid var(--app-border);
+  border-radius: calc(14px * var(--feed-scale, 1));
+  background: #000000;
+  aspect-ratio: 16 / 9;
+}
+
+.videoThumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.9;
+}
+
+.videoPlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  width: calc(52px * var(--feed-scale, 1));
+  height: calc(52px * var(--feed-scale, 1));
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.58);
+  color: #ffffff;
+  transform: translate(-50%, -50%);
+}
+
+.videoPlay svg {
+  width: calc(24px * var(--feed-scale, 1));
+  height: calc(24px * var(--feed-scale, 1));
+  margin-left: 2px;
+}
+
+.videoChannel {
+  position: absolute;
+  bottom: calc(9px * var(--feed-scale, 1));
+  left: calc(9px * var(--feed-scale, 1));
+  max-width: calc(100% - 18px);
+  overflow: hidden;
+  padding: calc(4px * var(--feed-scale, 1)) calc(9px * var(--feed-scale, 1));
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.62);
+  color: #ffffff;
+  font-size: calc(11px * var(--feed-scale, 1));
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* What the episode traded, in place of a single call's P&L pill. Narrow
+   viewports run out of room before the chips do, so the tail fades rather than
+   ending on a chip sliced down the middle. */
+.tickerStrip {
+  display: flex;
+  min-width: 0;
+  flex-shrink: 1;
+  align-items: center;
+  gap: calc(5px * var(--feed-scale, 1));
+  margin-left: auto;
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, #000 calc(100% - 24px), transparent);
+}
+
+.tickerChip {
+  flex: 0 0 auto;
+  padding: calc(4px * var(--feed-scale, 1)) calc(9px * var(--feed-scale, 1));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--app-surface-alt) 68%, transparent);
+  color: var(--app-text-secondary);
+  font-size: calc(12px * var(--feed-scale, 1));
+  font-weight: 800;
+}
+
+/* ── Action row ────────────────────────────────────────────────────────── */
+
+.actionsRow {
+  display: flex;
+  align-items: center;
+  margin-top: calc(12px * var(--feed-scale, 1));
+}
+
+/*
+ * Fixed 44px slots with the icon pinned left: icon-to-icon distance is one slot
+ * on every card, so a like count never shifts the rhythm. The count is taken
+ * out of flow into the slot's trailing space for the same reason.
+ */
+.action {
+  position: relative;
+  display: flex;
+  width: calc(52px * var(--feed-scale, 1));
+  min-height: calc(44px * var(--feed-scale, 1));
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: flex-start;
+  color: var(--app-text-secondary);
+}
+
+.action svg {
+  width: calc(20px * var(--feed-scale, 1));
+  height: calc(20px * var(--feed-scale, 1));
+  flex: 0 0 auto;
+}
+
+.actionLiked {
+  color: var(--app-like);
+}
+
+.actionSaved {
+  color: var(--app-accent-blue);
+}
+
+.actionCount {
+  position: absolute;
+  left: calc(25px * var(--feed-scale, 1));
+  color: var(--app-text-secondary);
+  font-size: calc(12px * var(--feed-scale, 1));
+  font-weight: 700;
+  line-height: calc(16px * var(--feed-scale, 1));
+  font-variant-numeric: tabular-nums;
+  opacity: 0.8;
+}
+
+.actionCountLiked {
+  color: var(--app-like);
+  opacity: 1;
+}
+
+/* ── Asset + P&L pill ──────────────────────────────────────────────────── */
+
+.pnlPill {
+  display: flex;
+  min-width: 0;
+  min-height: calc(34px * var(--feed-scale, 1));
+  flex-shrink: 1;
+  align-items: center;
+  gap: calc(6px * var(--feed-scale, 1));
+  margin-left: auto;
+  padding: calc(4px * var(--feed-scale, 1)) calc(7px * var(--feed-scale, 1));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--app-surface-alt) 68%, transparent);
+}
+
+.legStack {
+  display: flex;
+  min-width: 0;
+  flex-shrink: 1;
+  align-items: center;
+  overflow: hidden;
+}
+
+.legIcon {
+  display: grid;
+  width: calc(22px * var(--feed-scale, 1));
+  height: calc(22px * var(--feed-scale, 1));
+  flex: 0 0 auto;
+  place-items: center;
+  overflow: hidden;
+  border: calc(2px * var(--feed-scale, 1)) solid var(--app-surface-alt);
+  border-radius: 50%;
+  /* White beneath the mark, like the app's AssetLogo — issuer logos are often
+     light-on-transparent and disappear on a tinted tile. */
+  background: var(--app-surface);
+  color: var(--app-text-secondary);
+  font-size: calc(9px * var(--feed-scale, 1));
+  font-weight: 900;
+}
+
+.legIcon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.legIcon + .legIcon {
+  margin-left: calc(-10px * var(--feed-scale, 1));
+}
+
+.pnl {
+  flex-shrink: 0;
+  font-family: var(--font-figure);
+  font-size: calc(14px * var(--feed-scale, 1));
+  font-weight: 400;
+  font-synthesis-weight: none;
+  letter-spacing: var(--font-figure-tracking);
+  font-variant-numeric: tabular-nums;
+}
+
+.pnlPositive {
+  color: var(--app-chart-positive);
+}
+
+.pnlNegative {
+  color: var(--app-negative);
+}
+
+.pnlFlat {
+  color: var(--app-text);
+}
+
+/* ── Floating actions ──────────────────────────────────────────────────── */
+
+/*
+ * Sits clear of the reading column where the viewport allows it, and overlays
+ * the feed's bottom-right corner (as in the app) once it no longer does.
+ */
+.fab {
+  position: fixed;
+  right: max(20px, calc((100vw - 620px * var(--feed-scale, 1)) / 2 - 88px * var(--feed-scale, 1)));
+  bottom: 28px;
+  z-index: 30;
+  display: grid;
+  width: calc(64px * var(--feed-scale, 1));
+  height: calc(64px * var(--feed-scale, 1));
+  place-items: center;
+  border-radius: 50%;
+  background: var(--app-accent-blue);
+  color: #ffffff;
+  box-shadow: 0 8px 24px rgba(56, 189, 248, 0.36);
+  text-decoration: none;
+}
+
+.fab svg {
+  width: calc(28px * var(--feed-scale, 1));
+  height: calc(28px * var(--feed-scale, 1));
+}
+
+@media (max-width: 640px) {
+  .feed {
+    padding-bottom: 120px;
+  }
+
+  .tab {
+    font-size: 26px;
+  }
+
+  .action {
+    width: 46px;
+  }
+}
