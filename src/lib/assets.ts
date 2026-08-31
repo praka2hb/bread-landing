@@ -244,7 +244,6 @@ export function formatCompactUsd(value: number | null): string {
   if (value === null) return "—";
   return `$${compactNumber.format(value)}`;
 }
-
 export function formatCompactNumber(value: number | null): string {
   if (value === null) return "—";
   return compactNumber.format(value);
