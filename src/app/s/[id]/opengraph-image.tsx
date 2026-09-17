@@ -24,7 +24,13 @@ export default async function OpenGraphImage({
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
-          padding: 64,
+          paddingTop: 64,
+          paddingLeft: 64,
+          paddingRight: 64,
+          // X draws the page title as a grey pill over the bottom of the card
+          // in a tweet preview, which used to sit on top of the legs row.
+          // Keep the bottom band clear so nothing important is behind it.
+          paddingBottom: 140,
           background: "#f4f2ed",
           color: "#111114",
           fontFamily: "Arial, sans-serif",
