@@ -6,6 +6,14 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: __dirname,
   },
+  async rewrites() {
+    return [
+      {
+        source: "/deck",
+        destination: "/deck/index.html",
+      },
+    ];
+  },
 };
 
 export default nextConfig;
