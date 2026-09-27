@@ -2,8 +2,10 @@
   --hero-cream: #f0eadc;
   --hero-ink: #171713;
   --hero-green: #8aff2f;
+  --hero-shell: #d8d2c5;
   position: relative;
-  height: 760svh;
+  height: 430svh;
+  background: var(--hero-shell);
   color: var(--hero-cream);
   isolation: isolate;
 }
@@ -19,25 +21,30 @@
   min-height: 560px;
   overflow: hidden;
   isolation: isolate;
+  background:
+    radial-gradient(circle at 50% 55%, #f4f0e7 0 22%, #ddd7cb 58%, #b8b0a2 100%);
 }
 
 .camera,
-.anatomyPanel {
+.vhsNoise {
   position: absolute;
   inset: 0;
+}
+
+.stickyScene::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 5px, rgb(56 50 40 / 0.025) 6px),
+    radial-gradient(circle at 50% 54%, transparent 0 36%, rgb(47 39 29 / 0.18) 100%);
+  pointer-events: none;
 }
 
 .camera {
   z-index: 3;
   perspective: 1600px;
   perspective-origin: 50% 46%;
-  will-change: transform;
-}
-
-.anatomyPanel {
-  z-index: 10;
-  background: #fff;
-  will-change: transform;
 }
 
 .computer {
@@ -52,26 +59,6 @@
   will-change: transform;
 }
 
-.computer::after {
-  content: "";
-  position: absolute;
-  right: 11%;
-  bottom: 4.5%;
-  left: 12%;
-  z-index: 1;
-  height: 7%;
-  border-radius: 50%;
-  background: radial-gradient(
-    ellipse at center,
-    rgb(31 25 17 / 0.34) 0%,
-    rgb(31 25 17 / 0.18) 42%,
-    transparent 74%
-  );
-  filter: blur(14px);
-  transform: translateY(34%) scaleX(0.96);
-  pointer-events: none;
-}
-
 .monitorImage {
   position: absolute;
   inset: 0;
@@ -80,13 +67,9 @@
   height: 100%;
   object-fit: fill;
   filter:
-    sepia(0.035)
-    saturate(0.9)
-    brightness(0.985)
-    contrast(1.055)
-    drop-shadow(0 2px 2px rgb(39 31 20 / 0.18))
-    drop-shadow(0 18px 20px rgb(29 22 14 / 0.2))
-    drop-shadow(0 42px 38px rgb(29 22 14 / 0.14));
+    sepia(0.05)
+    contrast(1.04)
+    drop-shadow(0 28px 30px rgb(8 5 1 / 0.42));
   user-select: none;
 }
 
@@ -100,12 +83,10 @@
   overflow: hidden;
   border-radius: 5.5% 5.5% 6.5% 6.5% / 6% 6% 7% 7%;
   clip-path: inset(0 round 5.5% 5.5% 6.5% 6.5% / 6% 6% 7% 7%);
-  background: #368dca;
+  background: #43a6ec;
   box-shadow:
-    inset 0 2px 5px rgb(255 255 255 / 0.16),
-    inset 0 -2px 8px rgb(0 7 18 / 0.28),
-    inset 0 0 46px 13px rgb(0 12 29 / 0.34),
-    0 0 3px 1px rgb(55 148 211 / 0.26);
+    inset 0 0 38px 10px rgb(0 16 36 / 0.28),
+    0 0 5px 2px rgb(78 178 243 / 0.38);
   isolation: isolate;
   transform: translateZ(3px);
 }
@@ -123,35 +104,92 @@
 
 .skyLayer {
   z-index: 0;
-  top: -5%;
-  right: auto;
-  bottom: -5%;
-  left: -35%;
-  width: 170%;
+  transform-origin: 50% 68%;
 }
 
 .cloudsLayer {
   z-index: 1;
-  top: -5%;
+  top: -30%;
   right: auto;
-  bottom: -5%;
-  left: -150%;
-  width: 400%;
+  bottom: 30%;
+  left: -35%;
+  width: 210%;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 78%,
+    rgb(0 0 0 / 0.94) 84%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    #000 0%,
+    #000 78%,
+    rgb(0 0 0 / 0.94) 84%,
+    transparent 100%
+  );
+  transform-origin: 55% 78%;
 }
 
 .grassLayer {
   z-index: 2;
-  top: 3%;
+  top: 24%;
   right: auto;
-  bottom: -13%;
-  left: -150%;
-  width: 400%;
+  bottom: -24%;
+  left: -22%;
+  width: 300%;
+  transform-origin: 48% 100%;
 }
 
-.skyLayer .sceneImage,
 .cloudsLayer .sceneImage,
 .grassLayer .sceneImage {
   object-fit: fill;
+}
+
+.crtTint,
+.scanlines,
+.glassGlare {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.crtTint {
+  z-index: 4;
+  opacity: 0.5;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgb(255 32 81 / 0.12) 0 1px,
+      rgb(39 255 128 / 0.06) 1px 2px,
+      rgb(39 84 255 / 0.12) 2px 3px
+    ),
+    radial-gradient(ellipse at center, transparent 46%, rgb(2 9 20 / 0.38) 100%);
+  background-size: 3px 100%, 100% 100%;
+  mix-blend-mode: soft-light;
+}
+
+.scanlines {
+  z-index: 5;
+  opacity: 0.24;
+  background: repeating-linear-gradient(
+    180deg,
+    rgb(255 255 255 / 0.04) 0,
+    rgb(255 255 255 / 0.04) 1px,
+    transparent 1px,
+    transparent 4px,
+    rgb(4 12 24 / 0.3) 5px
+  );
+  mix-blend-mode: multiply;
+}
+
+.glassGlare {
+  z-index: 6;
+  opacity: 0.36;
+  background:
+    linear-gradient(112deg, rgb(255 255 255 / 0.38), transparent 22% 74%, rgb(255 255 255 / 0.09)),
+    linear-gradient(180deg, transparent 0 44%, rgb(255 255 255 / 0.12) 49%, transparent 56%);
+  box-shadow: inset 0 0 46px 10px rgb(1 13 29 / 0.28);
 }
 
 .scrollHint {
@@ -232,6 +270,25 @@
   box-shadow: 0 0 14px rgb(138 255 47 / 0.9);
 }
 
+.vhsNoise {
+  z-index: 20;
+  opacity: 0.1;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 7px, rgb(255 255 255 / 0.12) 8px, transparent 9px),
+    radial-gradient(circle at 22% 17%, rgb(255 255 255 / 0.22) 0 0.5px, transparent 0.8px),
+    radial-gradient(circle at 73% 68%, rgb(255 255 255 / 0.18) 0 0.5px, transparent 0.8px);
+  background-size: 100% 11px, 5px 5px, 7px 7px;
+  mix-blend-mode: soft-light;
+}
+
+@media (max-width: 900px) {
+  .cloudsLayer {
+    top: -36%;
+    bottom: 36%;
+  }
+}
+
 @media (max-width: 639px) {
   .stickyScene {
     min-height: 520px;
@@ -240,6 +297,11 @@
   .computer {
     top: 58%;
     width: 150vw;
+  }
+
+  .cloudsLayer {
+    top: -42%;
+    bottom: 42%;
   }
 
   .scrollHint {
@@ -256,8 +318,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .computer,
-  .camera,
-  .anatomyPanel,
   .sceneLayer,
   .onlineToast,
   .scrollHint {

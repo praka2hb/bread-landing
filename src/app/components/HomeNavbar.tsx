@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import styles from "./home-navbar.module.css";
-import { TestflightLink } from "./TestflightLink";
 
 function XIcon() {
   return (
@@ -37,13 +36,15 @@ export function HomeNavbar() {
         </a>
 
         <div className={styles.testflightCta}>
-          <TestflightLink
+          <a
             href="https://testflight.apple.com/join/8UAWE67D"
             className={styles.testflightLink}
-            location="navbar"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Join Bread on TestFlight"
           >
             <span>JOIN TESTFLIGHT</span>
-          </TestflightLink>
+          </a>
 
           <span className={styles.testflightPopover} aria-hidden="true">
             <span className={styles.qrFrame}>
