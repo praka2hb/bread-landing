@@ -1,12 +1,9 @@
 import Image from "next/image";
-import { AppPreviewSection } from "./components/AppPreviewSection";
-import { BreadAnatomySection } from "./components/BreadAnatomySection";
 import { BreadHero } from "./components/bread-hero";
-import { FridgeStorySection } from "./components/FridgeStorySection";
 import { HomeNavbar } from "./components/HomeNavbar";
 import styles from "./page.module.css";
 
-const SHOW_FULL_LANDING_PAGE = false;
+const SHOW_FULL_LANDING_PAGE = true;
 
 function YouTubeIcon() {
   return (
@@ -57,12 +54,7 @@ export default function Page() {
     <>
       <HomeNavbar />
       {SHOW_FULL_LANDING_PAGE ? (
-        <>
-          <BreadHero />
-          <BreadAnatomySection />
-          <FridgeStorySection />
-          <AppPreviewSection />
-        </>
+        <BreadHero />
       ) : (
         <main className={styles.main}>
           <div className={styles.intro}>

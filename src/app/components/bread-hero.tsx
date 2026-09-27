@@ -8,6 +8,12 @@ import {
   useTransform,
 } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
+import { BreadAnatomySection } from "./BreadAnatomySection";
+import {
+  HeroCloudsLayer,
+  HeroGrassLayer,
+  HeroSkyLayer,
+} from "./hero-scene-layers";
 import styles from "./bread-hero.module.css";
 
 const MONITOR_ASPECT_RATIO = 3 / 2;
@@ -59,61 +65,65 @@ export function BreadHero() {
 
   const computerScale = useTransform(
     scrollYProgress,
-    [0, 0.1, 0.34, 0.58, 0.76, 1],
+    [0, 0.08, 0.26, 0.46, 0.88, 1],
     [0.72, 0.72, 1.12, entryScale, entryScale, entryScale],
   );
   const computerY = useTransform(
     scrollYProgress,
-    [0, 0.12, 0.42, 0.62, 1],
+    [0, 0.1, 0.32, 0.48, 1],
     [34, 34, 4, 0, 0],
+  );
+  const skyX = useTransform(
+    scrollYProgress,
+    [0, 0.46, 0.58, 0.7, 0.82, 0.9, 1],
+    ["0%", "0%", "5%", "-2%", "6%", "1%", "8%"],
   );
   const cloudsX = useTransform(
     scrollYProgress,
-    [0, 0.58, 0.74, 1],
-    ["0%", "0%", "-7%", "-28%"],
+    [0, 0.46, 0.58, 0.7, 0.82, 0.9, 1],
+    ["0%", "0%", "-6%", "-13%", "-21%", "-29%", "-37.5%"],
   );
-  const cloudsOpacity = useTransform(
+  const cloudsY = useTransform(
     scrollYProgress,
-    [0, 0.32, 0.58, 0.88, 1],
-    [0.72, 0.78, 1, 1, 0.88],
+    [0, 0.46, 0.6, 0.74, 0.88, 1],
+    ["0%", "0%", "-1.5%", "1%", "-1%", "0.5%"],
   );
   const grassX = useTransform(
     scrollYProgress,
-    [0, 0.58, 0.74, 1],
-    ["0%", "0%", "-14%", "-44%"],
-  );
-  const grassOpacity = useTransform(
-    scrollYProgress,
-    [0, 0.4, 0.62, 1],
-    [0.86, 0.9, 1, 0.96],
+    [0, 0.46, 0.58, 0.7, 0.82, 0.9, 1],
+    ["0%", "0%", "6%", "13%", "21%", "29%", "37.5%"],
   );
   const grassY = useTransform(
     scrollYProgress,
-    [0, 0.58, 0.74, 0.88, 1],
-    [0, 0, -4, 10, -2],
-  );
-  const grassSkewY = useTransform(
-    scrollYProgress,
-    [0, 0.58, 0.74, 0.88, 1],
-    [0, 0, -1.6, 1.8, -0.8],
-  );
-  const grassScaleY = useTransform(
-    scrollYProgress,
-    [0, 0.58, 0.74, 0.88, 1],
-    [0.86, 0.86, 0.9, 0.84, 0.88],
+    [0, 0.46, 0.6, 0.74, 0.88, 1],
+    ["0%", "0%", "1%", "-1.25%", "1.5%", "0%"],
   );
   const onlineOpacity = useTransform(
     scrollYProgress,
-    [0, 0.76, 0.86, 1],
-    [0, 0, 1, 1],
+    [0, 0.82, 0.86, 0.89, 0.93, 1],
+    [0, 0, 1, 1, 0, 0],
   );
-  const onlineY = useTransform(scrollYProgress, [0.76, 0.9], [18, 0]);
+  const onlineY = useTransform(
+    scrollYProgress,
+    [0.82, 0.86, 0.89, 0.93],
+    [18, 0, 0, -12],
+  );
+  const computerPanelX = useTransform(
+    scrollYProgress,
+    [0, 0.9, 0.98, 1],
+    ["0%", "0%", "-100%", "-100%"],
+  );
+  const anatomyPanelX = useTransform(
+    scrollYProgress,
+    [0, 0.9, 0.98, 1],
+    ["100%", "100%", "0%", "0%"],
+  );
 
   return (
     <section
       ref={heroRef}
       className={`${styles.hero} ${reduceMotion ? styles.reducedMotion : ""}`}
-      aria-label="Enter Bread through a retro computer screen"
+      aria-label="Explore Bread through a retro computer and sandwich anatomy"
     >
       <div className={styles.stickyScene}>
         <p
@@ -125,7 +135,10 @@ export function BreadHero() {
           Scroll to move right
         </p>
 
-        <div className={styles.camera}>
+        <motion.div
+          className={styles.camera}
+          style={{ x: reduceMotion ? "-100%" : computerPanelX }}
+        >
           <motion.div
             className={styles.computer}
             style={{
@@ -134,7 +147,7 @@ export function BreadHero() {
             }}
           >
             <Image
-              src="/bread-crt-cool-gray.png"
+              src="/bread-crt-photoreal-v2.png"
               alt="An off-white vintage CRT computer displaying a rolling green landscape"
               width={1536}
               height={1024}
@@ -144,65 +157,18 @@ export function BreadHero() {
             />
 
             <div className={styles.screen} aria-hidden="true">
-              <motion.div
-                className={`${styles.sceneLayer} ${styles.skyLayer}`}
-              >
-                <Image
-                  src="/hero-sky.png"
-                  alt=""
-                  fill
-                  priority
-                  unoptimized
-                  sizes="100vw"
-                  className={styles.sceneImage}
-                />
-              </motion.div>
-
-              <motion.div
-                className={`${styles.sceneLayer} ${styles.cloudsLayer}`}
-                style={{
-                  x: reduceMotion ? "0%" : cloudsX,
-                  opacity: reduceMotion ? 1 : cloudsOpacity,
-                }}
-              >
-                <Image
-                  src="/hero-clouds-defringed.png"
-                  alt=""
-                  fill
-                  priority
-                  unoptimized
-                  sizes="100vw"
-                  className={styles.sceneImage}
-                />
-              </motion.div>
-
-              <motion.div
-                className={`${styles.sceneLayer} ${styles.grassLayer}`}
-                style={{
-                  x: reduceMotion ? "0%" : grassX,
-                  y: reduceMotion ? 0 : grassY,
-                  skewY: reduceMotion ? 0 : grassSkewY,
-                  scaleY: reduceMotion ? 0.86 : grassScaleY,
-                  opacity: reduceMotion ? 1 : grassOpacity,
-                }}
-              >
-                <Image
-                  src="/hero-grass.png"
-                  alt=""
-                  fill
-                  priority
-                  unoptimized
-                  sizes="100vw"
-                  className={styles.sceneImage}
-                />
-              </motion.div>
-
-              <div className={styles.crtTint} />
-              <div className={styles.scanlines} />
-              <div className={styles.glassGlare} />
+              <HeroSkyLayer x={reduceMotion ? "0%" : skyX} />
+              <HeroCloudsLayer
+                x={reduceMotion ? "0%" : cloudsX}
+                y={reduceMotion ? "0%" : cloudsY}
+              />
+              <HeroGrassLayer
+                x={reduceMotion ? "0%" : grassX}
+                y={reduceMotion ? "0%" : grassY}
+              />
             </div>
           </motion.div>
-        </div>
+        </motion.div>
 
         {!reduceMotion ? (
           <motion.div
@@ -217,7 +183,12 @@ export function BreadHero() {
           </motion.div>
         ) : null}
 
-        <div className={styles.vhsNoise} aria-hidden="true" />
+        <motion.div
+          className={styles.anatomyPanel}
+          style={{ x: reduceMotion ? "0%" : anatomyPanelX }}
+        >
+          <BreadAnatomySection />
+        </motion.div>
       </div>
     </section>
   );

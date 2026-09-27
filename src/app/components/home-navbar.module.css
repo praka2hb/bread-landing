@@ -2,6 +2,8 @@
   --navbar-blue: #0ea5e9;
   --navbar-sky-top: #38bdf8;
   --navbar-sky-bottom: #0ea5e9;
+  --navbar-sky-tint: #e0f2fe;
+  --navbar-sky-border: #bae6fd;
   position: fixed;
   top: 16px;
   right: 0;
@@ -21,9 +23,9 @@
   align-items: center;
   gap: 8px;
   padding: 8px 10px;
-  border: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--navbar-sky-border) 72%, transparent);
   border-radius: 999px;
-  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  background: color-mix(in srgb, var(--navbar-sky-tint) 72%, transparent);
   box-shadow:
     0 12px 32px rgba(35, 43, 76, 0.12),
     inset 0 1px 0 rgba(255, 255, 255, 0.92);
