@@ -12,6 +12,10 @@ const nextConfig: NextConfig = {
         source: "/deck",
         destination: "/deck/index.html",
       },
+      {
+        source: "/deck/stocklana",
+        destination: "/deck/index.html",
+      },
     ];
   },
 };

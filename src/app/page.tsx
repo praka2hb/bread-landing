@@ -6,7 +6,7 @@ import { FridgeStorySection } from "./components/FridgeStorySection";
 import { HomeNavbar } from "./components/HomeNavbar";
 import styles from "./page.module.css";
 
-const SHOW_FULL_LANDING_PAGE = false;
+const SHOW_FULL_LANDING_PAGE = true;
 
 function YouTubeIcon() {
   return (
