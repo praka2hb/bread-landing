@@ -517,6 +517,9 @@ export function getSandwichSourceLabel(sandwich: Sandwich): string {
   return "Community thesis";
 }
 
+// Public beta invite. Where a shared link sends someone who doesn't have Bread.
+export const TESTFLIGHT_URL = "https://testflight.apple.com/join/8UAWE67D";
+
 export function getOpenInAppUrl(id: string): string {
   return `bread://sandwich?sandwichId=${encodeURIComponent(id)}`;
 }

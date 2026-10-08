@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { sandwichWebStyles as styles } from "@/app/components/sandwich-web";
+import { AppHandoff } from "@/app/components/app-handoff";
 import { EpisodeView, type EpisodeCallView } from "@/app/components/episode";
 import { getAssetSlugIndex } from "@/lib/assets";
 import {
@@ -116,6 +117,8 @@ export default async function EpisodePage({ params, searchParams }: Props) {
     // No site header: the episode is a focused reading screen, like the
     // sandwich detail page it replaced.
     <main className={styles.shell}>
+      {/* A shared /s/ link to a video call redirects here with ?call=. */}
+      {focusCallId ? <AppHandoff appLink={getOpenInAppUrl(focusCallId)} /> : null}
       <div className={styles.container}>
         <EpisodeView
           video={{

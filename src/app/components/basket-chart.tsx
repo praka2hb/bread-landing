@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import type { BasketPoint } from "@/lib/basket-points";
 import styles from "./basket-chart.module.css";
 
@@ -18,6 +18,15 @@ const PADDING_X = 10;
 const PADDING_Y = 18;
 
 /** Recent points get a time of day; older ones only need the date. */
+const noopSubscribe = () => () => {};
+
+// The axis label is in the viewer's timezone, which the server can't know — and
+// Node and Safari even join the parts differently ("at" vs ","). Rendering it
+// on the server guaranteed a hydration mismatch, so it renders client-only.
+function useIsClient(): boolean {
+  return useSyncExternalStore(noopSubscribe, () => true, () => false);
+}
+
 function formatAxisLabel(timestamp: number): string {
   const ageMs = Date.now() - timestamp;
   if (ageMs < 3 * 24 * 60 * 60 * 1000) {
@@ -115,6 +124,7 @@ export function BasketChart({
   const lastPoint = chartPoints[chartPoints.length - 1] ?? null;
   const selected = scrubIndex >= 0 ? (chartPoints[scrubIndex] ?? null) : null;
   const displayPoint = points[scrubIndex >= 0 ? scrubIndex : points.length - 1] ?? null;
+  const isClient = useIsClient();
   const positive = (displayPoint?.returnPct ?? 0) >= 0;
 
   const handlePointer = useCallback(
@@ -201,7 +211,7 @@ export function BasketChart({
         ) : null}
       </div>
       <div className={styles.footer}>
-        <span>{displayPoint ? formatAxisLabel(displayPoint.timestamp) : ""}</span>
+        <span>{isClient && displayPoint ? formatAxisLabel(displayPoint.timestamp) : ""}</span>
         <span>Since created</span>
       </div>
     </div>

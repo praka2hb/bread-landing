@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { TESTFLIGHT_URL } from "@/lib/sandwiches";
 import styles from "./home-navbar.module.css";
 
 function XIcon() {
@@ -37,7 +38,7 @@ export function HomeNavbar() {
 
         <div className={styles.testflightCta}>
           <a
-            href="https://testflight.apple.com/join/8UAWE67D"
+            href={TESTFLIGHT_URL}
             className={styles.testflightLink}
             target="_blank"
             rel="noopener noreferrer"

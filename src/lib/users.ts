@@ -82,10 +82,10 @@ function toUserProfile(value: unknown): UserProfile | null {
 /**
  * Resolve a handle to a profile.
  *
- * Backed by `/api/users/by-username/[username]`, added alongside this page —
- * sandwich payloads carry `builder.username` but drop the Privy DID that every
- * other user endpoint is keyed on. Until bread-be ships that route, production
- * answers 404 here and profile links render as plain text.
+ * Backed by `/api/users/by-username/[username]` — sandwich payloads and the
+ * directory both carry `builder.username` but drop the Privy DID that every
+ * other user endpoint is keyed on, so this is the one lookup that turns the
+ * public identifier back into one.
  */
 export const getUserByUsername = cache(
   async (username: string): Promise<UserProfile | null> => {
@@ -183,3 +183,95 @@ export function shortenAddress(address: string | null): string | null {
   if (!address || address.length <= 12) return address;
   return `${address.slice(0, 4)}…${address.slice(-4)}`;
 }
+
+/* ── Directory ─────────────────────────────────────────────────────────── */
+
+export type DirectoryUser = {
+  privyUserId: string;
+  username: string;
+  name: string | null;
+  avatarUrl: string | null;
+  bio: string | null;
+  walletAddress: string | null;
+  followerCount: number;
+  followingCount: number;
+  sandwichCount: number;
+  joinedAt: string | null;
+};
+
+export type UserDirectory = {
+  users: DirectoryUser[];
+  total: number;
+  /** Absent once the last page has been served. */
+  nextOffset: number | null;
+};
+
+/** Matches the API default, so the first page needs no explicit limit. */
+export const DIRECTORY_PAGE_SIZE = 48;
+
+const EMPTY_DIRECTORY: UserDirectory = { users: [], total: 0, nextOffset: null };
+
+function toDirectoryUser(value: unknown): DirectoryUser | null {
+  if (!isRecord(value)) return null;
+
+  const privyUserId = toText(value.privyUserId);
+  const username = toText(value.username);
+  // A row with no handle has no profile to open, so it is dropped rather than
+  // rendered as an unclickable card.
+  if (!privyUserId || !username) return null;
+
+  return {
+    privyUserId,
+    username,
+    name: toText(value.name),
+    avatarUrl: toText(value.avatarUrl),
+    bio: toText(value.bio),
+    walletAddress: toText(value.walletAddress),
+    followerCount: toNumber(value.followerCount) ?? 0,
+    followingCount: toNumber(value.followingCount) ?? 0,
+    sandwichCount: toNumber(value.sandwichCount) ?? 0,
+    joinedAt: toText(value.joinedAt),
+  };
+}
+
+/**
+ * One page of the public member directory.
+ *
+ * Optional like every other read on these pages: the directory going quiet
+ * should render an empty state, not a 500 — the page is a list of people, and
+ * an unreachable API is indistinguishable from nobody matching.
+ */
+export const getUserDirectory = cache(
+  async ({
+    query,
+    limit = DIRECTORY_PAGE_SIZE,
+    offset = 0,
+  }: { query?: string | null; limit?: number; offset?: number } = {}): Promise<UserDirectory> => {
+    const params = new URLSearchParams({
+      limit: String(Math.min(Math.max(limit, 1), 100)),
+      offset: String(Math.max(offset, 0)),
+    });
+    const handle = query?.trim().replace(/^@+/, "");
+    if (handle) params.set("q", handle);
+
+    const payload = await fetchOptional<{
+      users?: unknown;
+      total?: unknown;
+      nextOffset?: unknown;
+    }>(`/api/users/directory?${params.toString()}`);
+
+    if (!payload) return EMPTY_DIRECTORY;
+
+    const rows = Array.isArray(payload.users) ? payload.users : [];
+    const users = rows.flatMap((row) => {
+      const user = toDirectoryUser(row);
+      return user ? [user] : [];
+    });
+
+    return {
+      users,
+      total: toNumber(payload.total) ?? users.length,
+      nextOffset: toNumber(payload.nextOffset),
+    };
+  },
+);

@@ -13,6 +13,7 @@ import {
   isXPostSource,
 } from "@/lib/sandwiches";
 import { BasketChart } from "./basket-chart";
+import { AppHandoff } from "./app-handoff";
 import { AssetLogo } from "./market-app";
 import styles from "./sandwich-app-detail.module.css";
 
@@ -49,15 +50,19 @@ function formatLegPrice(value: number | null): string {
   }).format(value);
 }
 
+const SHORT_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+// Formatted by hand, in UTC: this renders on the server and again on the
+// phone, and toLocaleDateString disagrees between them ("Sep" in Node,
+// "Sept" in Safari; a different day across timezones) — a hydration error.
 function formatPostDate(value: string | null): string {
   if (!value) return "";
   const date = new Date(value);
   if (!Number.isFinite(date.getTime())) return "";
-  return date.toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: date.getFullYear() === new Date().getFullYear() ? undefined : "numeric",
-  });
+  const dayMonth = `${date.getUTCDate()} ${SHORT_MONTHS[date.getUTCMonth()]}`;
+  return date.getUTCFullYear() === new Date().getUTCFullYear()
+    ? dayMonth
+    : `${dayMonth} ${date.getUTCFullYear()}`;
 }
 
 function legSideLabel(leg: SandwichLeg): string {
@@ -361,6 +366,7 @@ export function SandwichAppDetail({
 
   return (
     <div className={styles.screen}>
+      <AppHandoff appLink={openInApp} />
       <div className={styles.page}>
         <Link href="/sandwiches" className={styles.backButton} aria-label="Back to sandwiches">
           <ChevronLeftIcon />
