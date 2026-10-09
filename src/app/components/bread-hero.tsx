@@ -148,7 +148,7 @@ export function BreadHero() {
                 className={`${styles.sceneLayer} ${styles.skyLayer}`}
               >
                 <Image
-                  src="/hero-sky-v2.png"
+                  src="/hero-sky.png"
                   alt=""
                   fill
                   priority
@@ -166,7 +166,7 @@ export function BreadHero() {
                 }}
               >
                 <Image
-                  src="/hero-clouds-v2.png"
+                  src="/hero-clouds-defringed.png"
                   alt=""
                   fill
                   priority
@@ -187,7 +187,7 @@ export function BreadHero() {
                 }}
               >
                 <Image
-                  src="/hero-grass-v2.png"
+                  src="/hero-grass.png"
                   alt=""
                   fill
                   priority
