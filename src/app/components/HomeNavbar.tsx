@@ -1,6 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
+import localFont from "next/font/local";
 import styles from "./home-navbar.module.css";
+
+const sfProRounded = localFont({
+  src: "../../fonts/sf-pro-rounded-heavy.woff2",
+  weight: "800",
+  display: "swap",
+});
 
 function XIcon() {
   return (
@@ -43,7 +50,9 @@ export function HomeNavbar() {
             rel="noopener noreferrer"
             aria-label="Join Bread on TestFlight"
           >
-            <span>JOIN TESTFLIGHT</span>
+            <span className={`${styles.testflightFace} ${sfProRounded.className}`}>
+              Join TestFlight
+            </span>
           </a>
 
           <span className={styles.testflightPopover} aria-hidden="true">
