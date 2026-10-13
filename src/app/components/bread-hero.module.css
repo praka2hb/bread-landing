@@ -25,8 +25,7 @@
     radial-gradient(circle at 50% 55%, #f4f0e7 0 22%, #ddd7cb 58%, #b8b0a2 100%);
 }
 
-.camera,
-.vhsNoise {
+.camera {
   position: absolute;
   inset: 0;
 }
@@ -94,102 +93,11 @@
 .sceneLayer {
   position: absolute;
   inset: -1px;
-  will-change: transform;
 }
 
 .sceneImage {
   object-fit: cover;
   user-select: none;
-}
-
-.skyLayer {
-  z-index: 0;
-  transform-origin: 50% 68%;
-}
-
-.cloudsLayer {
-  z-index: 1;
-  top: -30%;
-  right: auto;
-  bottom: 30%;
-  left: -35%;
-  width: 210%;
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    #000 0%,
-    #000 78%,
-    rgb(0 0 0 / 0.94) 84%,
-    transparent 100%
-  );
-  mask-image: linear-gradient(
-    to bottom,
-    #000 0%,
-    #000 78%,
-    rgb(0 0 0 / 0.94) 84%,
-    transparent 100%
-  );
-  transform-origin: 55% 78%;
-}
-
-.grassLayer {
-  z-index: 2;
-  top: 24%;
-  right: auto;
-  bottom: -24%;
-  left: -22%;
-  width: 300%;
-  transform-origin: 48% 100%;
-}
-
-.cloudsLayer .sceneImage,
-.grassLayer .sceneImage {
-  object-fit: fill;
-}
-
-.crtTint,
-.scanlines,
-.glassGlare {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.crtTint {
-  z-index: 4;
-  opacity: 0.5;
-  background:
-    repeating-linear-gradient(
-      90deg,
-      rgb(255 32 81 / 0.12) 0 1px,
-      rgb(39 255 128 / 0.06) 1px 2px,
-      rgb(39 84 255 / 0.12) 2px 3px
-    ),
-    radial-gradient(ellipse at center, transparent 46%, rgb(2 9 20 / 0.38) 100%);
-  background-size: 3px 100%, 100% 100%;
-  mix-blend-mode: soft-light;
-}
-
-.scanlines {
-  z-index: 5;
-  opacity: 0.24;
-  background: repeating-linear-gradient(
-    180deg,
-    rgb(255 255 255 / 0.04) 0,
-    rgb(255 255 255 / 0.04) 1px,
-    transparent 1px,
-    transparent 4px,
-    rgb(4 12 24 / 0.3) 5px
-  );
-  mix-blend-mode: multiply;
-}
-
-.glassGlare {
-  z-index: 6;
-  opacity: 0.36;
-  background:
-    linear-gradient(112deg, rgb(255 255 255 / 0.38), transparent 22% 74%, rgb(255 255 255 / 0.09)),
-    linear-gradient(180deg, transparent 0 44%, rgb(255 255 255 / 0.12) 49%, transparent 56%);
-  box-shadow: inset 0 0 46px 10px rgb(1 13 29 / 0.28);
 }
 
 .scrollHint {
@@ -270,25 +178,6 @@
   box-shadow: 0 0 14px rgb(138 255 47 / 0.9);
 }
 
-.vhsNoise {
-  z-index: 20;
-  opacity: 0.1;
-  pointer-events: none;
-  background:
-    repeating-linear-gradient(0deg, transparent 0 7px, rgb(255 255 255 / 0.12) 8px, transparent 9px),
-    radial-gradient(circle at 22% 17%, rgb(255 255 255 / 0.22) 0 0.5px, transparent 0.8px),
-    radial-gradient(circle at 73% 68%, rgb(255 255 255 / 0.18) 0 0.5px, transparent 0.8px);
-  background-size: 100% 11px, 5px 5px, 7px 7px;
-  mix-blend-mode: soft-light;
-}
-
-@media (max-width: 900px) {
-  .cloudsLayer {
-    top: -36%;
-    bottom: 36%;
-  }
-}
-
 @media (max-width: 639px) {
   .stickyScene {
     min-height: 520px;
@@ -297,11 +186,6 @@
   .computer {
     top: 58%;
     width: 150vw;
-  }
-
-  .cloudsLayer {
-    top: -42%;
-    bottom: 42%;
   }
 
   .scrollHint {
