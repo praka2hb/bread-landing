@@ -4,6 +4,7 @@ import Image from "next/image";
 import {
   AnimatePresence,
   motion,
+  useMotionValueEvent,
   useReducedMotion,
   useScroll,
   useTransform,
@@ -11,7 +12,7 @@ import {
 } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { TESTFLIGHT_URL } from "@/lib/sandwiches";
-import { BRANDS, type BrandKey } from "./brands";
+import type { BrandKey } from "./brands";
 import { Logo, LogoStack } from "./Logo";
 import { Odometer } from "./Odometer";
 import styles from "./landing.module.css";
@@ -22,12 +23,10 @@ const X_URL = "https://x.com/breadappfun";
  * One motion vocabulary for the whole page.
  * - ENTER: content arriving on screen. Decelerates, never overshoots.
  * - SETTLE: things reacting to a state change. Critically damped.
- * - DROP: sandwich layers falling into place, the only thing allowed to bounce.
  */
 const EASE = [0.16, 1, 0.3, 1] as const;
 const ENTER = { duration: 0.7, ease: EASE };
 const SETTLE = { type: "spring", stiffness: 420, damping: 42 } as const;
-const DROP = { type: "spring", stiffness: 520, damping: 24, mass: 0.9 } as const;
 
 function useInView<T extends Element>(rootMargin = "-15% 0px") {
   const ref = useRef<T>(null);
@@ -99,24 +98,17 @@ function Nav() {
   return (
     <header className={styles.nav}>
       <nav className={styles.navPill} aria-label="Primary navigation">
-        <a href="#top" className={styles.navBrand} aria-label="Bread home">
+        <a href="#top" className={styles.navIcon} aria-label="Bread home">
           <Image src="/logo.png" alt="" width={493} height={479} priority />
-          <span>bread</span>
         </a>
-        <div className={styles.navLinks}>
-          <a href="#how">How it works</a>
-          <a href="#enables">Like2Buy</a>
-          <a href="#markets">Markets</a>
-          <a href={X_URL} target="_blank" rel="noreferrer" aria-label="Bread on X">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true">
-              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-            </svg>
-          </a>
-        </div>
+        <a href={X_URL} target="_blank" rel="noreferrer" className={styles.navX} aria-label="Bread on X">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+          </svg>
+        </a>
         <div className={styles.navGet}>
-          <a href={TESTFLIGHT_URL} target="_blank" rel="noopener noreferrer">
-            <Image src="/logo.png" alt="" width={44} height={44} className={styles.navAppIcon} />
-            Get the app
+          <a href={TESTFLIGHT_URL} target="_blank" rel="noopener noreferrer" className={styles.glossy}>
+            Join TestFlight
           </a>
           <span className={styles.navQr} aria-hidden="true">
             <Image src="/testflight-qr.svg" alt="" width={128} height={128} />
@@ -475,7 +467,7 @@ function Manifesto() {
   );
 }
 
-/* ───────────────────────── how bread works (ugly.cash 3-up) ───────────────────────── */
+/* ───────────────────────── how bread works: one phone, the real flow ───────────────────────── */
 
 /** Mounts a demo only once its card is on screen, so its timeline plays where you can see it. */
 function WhenSeen({ children, className }: { children: React.ReactNode; className?: string }) {
@@ -503,39 +495,313 @@ function WhenSeen({ children, className }: { children: React.ReactNode; classNam
   );
 }
 
+const FLOW = [
+  { title: "Say the idea", body: "Type a take, or paste a link from X, YouTube or Substack." },
+  { title: "Bread builds the sandwich", body: "It picks the assets behind the idea and weights each one. Every leg is visible." },
+  { title: "Tap buy", body: "Choose an amount. One tap buys every leg, and network fees are on us." },
+  { title: "Watch it cook", body: "Your sandwich tracks live from the second you buy it." },
+] as const;
+
+const IDEA = "chips are still the AI trade";
+
+const FLOW_LEGS: { id: "NVDA" | "AVGO" | "AMD"; w: number; price: string; pnl: string }[] = [
+  { id: "NVDA", w: 40, price: "$182.40", pnl: "+21.30%" },
+  { id: "AVGO", w: 35, price: "$349.90", pnl: "+16.84%" },
+  { id: "AMD", w: 25, price: "$233.08", pnl: "+15.02%" },
+];
+
 function HowBreadWorks() {
+  const ref = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
+  const [step, setStep] = useState(0);
+  useMotionValueEvent(scrollYProgress, "change", (v) => {
+    setStep(Math.min(FLOW.length - 1, Math.max(0, Math.floor(v * FLOW.length))));
+  });
+
+  // Clicking a step scrolls to the middle of its slice of the pinned section.
+  const goTo = (i: number) => {
+    const el = ref.current;
+    if (!el) return;
+    const top = el.getBoundingClientRect().top + window.scrollY;
+    const travel = el.offsetHeight - window.innerHeight;
+    window.scrollTo({ top: top + ((i + 0.5) / FLOW.length) * travel, behavior: "smooth" });
+  };
+
   return (
-    <section className={styles.section} id="how">
-      <Reveal>
-        <h2 className={styles.h2}>How Bread works</h2>
-      </Reveal>
-      <div className={styles.three}>
-        <Reveal className={styles.feature} delay={0}>
-          <WhenSeen className={`${styles.card} ${styles.cardWhite}`}>
-            <PasteDemo />
-          </WhenSeen>
-          <h3>Paste anything</h3>
-          <p>
-            Share a link, reply @breadappfun under a post, or just like it on X. Every idea
-            credits whoever brought it in.
+    <section ref={ref} className={styles.flow} id="how">
+      <div className={styles.flowSticky}>
+        <div className={styles.flowCopy}>
+          <h2 className={styles.h2}>How Bread works</h2>
+          <ol className={styles.flowSteps}>
+            {FLOW.map((s, i) => (
+              <li key={s.title} className={i === step ? styles.flowStepOn : undefined}>
+                <button type="button" onClick={() => goTo(i)}>
+                  <span className={styles.flowNum}>{i + 1}</span>
+                  <span>
+                    <b>{s.title}</b>
+                    <span>{s.body}</span>
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ol>
+        </div>
+
+        <div className={styles.flowPhone}>
+          <div className={styles.flowDots} aria-hidden="true">
+            {FLOW.map((s, i) => (
+              <i key={s.title} className={i <= step ? styles.flowDotOn : undefined} />
+            ))}
+          </div>
+          <div className={styles.flowFrame}>
+            <div className={styles.phoneIsland} />
+            <div className={styles.appScreen}>
+              <AppStatus />
+              <AnimatePresence mode="wait" initial={false}>
+                {step === 0 ? (
+                  <motion.div
+                    key="compose"
+                    className={styles.appFill}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0, y: -12 }}
+                    transition={{ duration: 0.25 }}
+                  >
+                    <ComposeScreen />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="sandwich"
+                    className={styles.appFill}
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={ENTER}
+                  >
+                    <SandwichScreen step={step} />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
+          <p className={styles.flowCaption} aria-live="polite">
+            <b>{FLOW[step].title}</b>
+            {FLOW[step].body}
           </p>
-        </Reveal>
-        <Reveal className={styles.feature} delay={0.08}>
-          <WhenSeen className={`${styles.card} ${styles.cardWhite}`}>
-            <MomentsDemo />
-          </WhenSeen>
-          <h3>Bread finds the calls</h3>
-          <p>It reads the whole thing and pulls out every tradable moment, with the timestamp and exact words.</p>
-        </Reveal>
-        <Reveal className={styles.feature} delay={0.16}>
-          <WhenSeen className={`${styles.card} ${styles.cardGreen}`}>
-            <SandwichDemo />
-          </WhenSeen>
-          <h3>Buy the sandwich</h3>
-          <p>Each call becomes a basket of stocks, perps or prediction markets. One tap, network fees on us.</p>
-        </Reveal>
+        </div>
       </div>
     </section>
+  );
+}
+
+function AppStatus() {
+  return (
+    <div className={styles.appStatus}>
+      <span>9:41</span>
+      <span className={styles.phoneStatusIcons}>
+        <i />
+        <i />
+        <i />
+      </span>
+    </div>
+  );
+}
+
+function ComposeScreen() {
+  const typed = useTyped(IDEA, 55);
+  const done = typed.length === IDEA.length;
+  return (
+    <div className={styles.compose}>
+      <div className={styles.composeHead}>
+        <Image src="/logo.png" alt="" width={36} height={36} />
+        <b>New sandwich</b>
+      </div>
+      <p className={styles.composeHint}>What do you want to long?</p>
+      <div className={styles.composeSources}>
+        <span>or paste a link</span>
+        <LogoStack ids={["x", "youtube", "substack"]} size={22} />
+      </div>
+      <div className={styles.composer}>
+        <span className={styles.composerText}>
+          {typed}
+          <i className={styles.composerCaret} />
+        </span>
+        <motion.span
+          className={styles.composerSend}
+          animate={done ? { scale: [1, 1.18, 1], rotate: [0, -12, 0] } : { scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.15 }}
+        >
+          <Image src="/sandwich-cutout.png" alt="" width={34} height={30} />
+        </motion.span>
+      </div>
+    </div>
+  );
+}
+
+function SandwichScreen({ step }: { step: number }) {
+  return (
+    <div className={styles.sw}>
+      <div className={styles.swTop}>
+        <span className={styles.swBack}>
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M15 5 8 12l7 7" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </span>
+      </div>
+
+      <div className={styles.swAuthor}>
+        <span className={styles.swAvatar}>Y</span>
+        <span>
+          <b>you</b>
+          <em>@you · now</em>
+        </span>
+      </div>
+      <p className={styles.swPost}>{IDEA}</p>
+
+      {/* tracking: the number and the curve, as the app draws them */}
+      <AnimatePresence initial={false}>
+        {step === 3 && (
+          <motion.div
+            className={styles.swMarket}
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            transition={ENTER}
+          >
+            <div className={styles.swPnl}>
+              <Odometer value="+18.42%" />
+            </div>
+            <svg viewBox="0 0 260 92" className={styles.swChart} preserveAspectRatio="none" aria-hidden="true">
+              <line x1="0" x2="260" y1="70" y2="70" stroke="#cbd2dc" strokeDasharray="3 4" />
+              <path
+                className={styles.swLine}
+                d="M0 70 L14 64 L26 72 L40 62 L54 66 L68 58 L80 63 L96 52 L110 55 L124 44 L138 48 L152 36 L168 40 L182 28 L198 33 L212 20 L228 24 L244 12 L260 16"
+                fill="none"
+                stroke="#35f046"
+                strokeWidth="2.6"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+              />
+            </svg>
+            <div className={styles.swAxis}>
+              <span>Oct 18</span>
+              <span>Since created</span>
+            </div>
+            <div className={styles.swRanges}>
+              {["24H", "1W", "1M", "3M"].map((r) => (
+                <span key={r} className={r === "1W" ? styles.swRangeOn : undefined}>
+                  {r}
+                </span>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className={styles.swLegs}>
+        {FLOW_LEGS.map((leg, i) => (
+          <motion.div
+            key={leg.id}
+            className={styles.swLeg}
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ...SETTLE, delay: step === 1 ? 0.35 + i * 0.22 : 0 }}
+          >
+            <Logo id={leg.id} size={40} className={styles.swLogo} />
+            <span className={styles.swLegName}>
+              <b>{leg.id}</b>
+              <em>{leg.w}%</em>
+            </span>
+            <span className={styles.swLegNums}>
+              <b>{leg.price}</b>
+              {step === 3 ? <em className={styles.swUp}>{leg.pnl}</em> : <em className={styles.swNew}>NEW</em>}
+            </span>
+          </motion.div>
+        ))}
+      </div>
+
+      {step === 1 && (
+        <motion.div
+          className={styles.swBuy}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ ...ENTER, delay: 1.1 }}
+        >
+          BUY
+        </motion.div>
+      )}
+
+      <AnimatePresence>{step === 2 && <BuySheet key="sheet" />}</AnimatePresence>
+      <AnimatePresence>
+        {step === 3 && (
+          <motion.div
+            className={styles.swToast}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ ...SETTLE, delay: 0.5 }}
+          >
+            <span>✓</span> You&apos;re in · $50.00 · 3 assets
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+const AMOUNTS = [10, 25, 50, 100];
+
+function BuySheet() {
+  // 0: sheet up · 1: $50 picked · 2: BUY pressed · 3: bought
+  const beat = useBeats([600, 1500, 1900]);
+  const picked = beat >= 1;
+  return (
+    <>
+      <motion.div
+        className={styles.sheetScrim}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+      />
+      <motion.div
+        className={styles.buySheet}
+        initial={{ y: "100%" }}
+        animate={{ y: 0 }}
+        exit={{ y: "100%" }}
+        transition={SETTLE}
+      >
+        <i className={styles.grabber} />
+        <span className={styles.sheetLabel}>Amount</span>
+        <span className={styles.sheetAmount}>
+          <Odometer key={picked ? "50" : "0"} value={picked ? "$50.00" : "$0.00"} />
+        </span>
+        <div className={styles.sheetPills}>
+          {AMOUNTS.map((a) => (
+            <span key={a} className={picked && a === 50 ? styles.sheetPillOn : undefined}>
+              ${a}
+            </span>
+          ))}
+        </div>
+        <ul className={styles.sheetSplit}>
+          {FLOW_LEGS.map((l) => (
+            <li key={l.id}>
+              <Logo id={l.id} size={18} className={styles.swLogo} />
+              {l.id}
+              <b>{picked ? `$${((50 * l.w) / 100).toFixed(2)}` : "$0.00"}</b>
+            </li>
+          ))}
+          <li className={styles.sheetFee}>
+            Network fee
+            <b>Free</b>
+          </li>
+        </ul>
+        <motion.span
+          className={`${styles.swBuy} ${beat >= 3 ? styles.swBought : ""}`}
+          animate={beat === 2 ? { scale: 0.95 } : { scale: 1 }}
+          transition={{ duration: 0.12 }}
+        >
+          {beat >= 3 ? "✓ Bought" : "BUY"}
+        </motion.span>
+      </motion.div>
+    </>
   );
 }
 
@@ -562,127 +828,6 @@ function useBeats(offsets: readonly number[]) {
     return () => ids.forEach(clearTimeout);
   }, [key]);
   return beat;
-}
-
-function PasteDemo() {
-  const url = "youtube.com/watch?v=k4fzywme6u";
-  const typed = useTyped(url, 38);
-  const done = typed.length === url.length;
-  return (
-    <div className={styles.demo}>
-      <div className={styles.paste}>
-        <Logo id="youtube" size={26} />
-        <span className={styles.pasteText}>
-          {typed}
-          {!done && <i className={styles.caret} />}
-        </span>
-        <span className={done ? styles.pasteGoOn : styles.pasteGo}>Cook</span>
-      </div>
-      <div className={styles.thumb}>
-        <Image src="/youtube-k4fzywme6u.jpg" alt="" fill sizes="360px" />
-        <span className={styles.thumbTime}>1:42:07</span>
-      </div>
-      <div className={styles.track}>
-        <motion.i initial={{ scaleX: 0 }} animate={{ scaleX: done ? 1 : 0.04 }} transition={{ duration: 1.8, ease: EASE }} />
-      </div>
-      <AnimatePresence>
-        {done && (
-          <motion.div
-            className={styles.credit}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ ...SETTLE, delay: 1.6 }}
-          >
-            <span>brought in by</span>
-            <b>
-              <Image src="/landing/x-saint.jpg" alt="" width={18} height={18} /> @Saint_pablo123
-            </b>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-const MOMENTS: { t: string; q: string; side: "Long" | "Short" | "Yes"; ids: BrandKey[] }[] = [
-  { t: "14:32", q: "The chip trade isn’t done.", side: "Long", ids: ["NVDA", "AVGO", "AMD"] },
-  { t: "38:05", q: "I’d be short EVs into earnings.", side: "Short", ids: ["TSLA"] },
-  { t: "1:07:44", q: "A December cut is underpriced.", side: "Yes", ids: [] },
-];
-
-function MomentsDemo() {
-  return (
-    <div className={styles.demo}>
-      <span className={styles.mono}>3 calls in 102 minutes</span>
-      <ul className={styles.moments}>
-        {MOMENTS.map((m, i) => (
-          <motion.li
-            key={m.t}
-            initial={{ opacity: 0, x: 18 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ ...ENTER, delay: 0.15 + i * 0.18 }}
-          >
-            <span className={styles.momentTime}>{m.t}</span>
-            <p>
-              <mark className={styles.mark} style={{ animationDelay: `${0.5 + i * 0.18}s` }}>
-                {m.q}
-              </mark>
-            </p>
-            <span className={styles.momentFoot}>
-              <span className={styles[`side${m.side}`]}>{m.side}</span>
-              {m.ids.length ? <LogoStack ids={m.ids} size={22} /> : <span className={styles.mono}>Fed cut · Dec</span>}
-            </span>
-          </motion.li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-function SandwichDemo() {
-  const legs = PHONE_LEGS;
-  const n = legs.length;
-  return (
-    <div className={styles.stack}>
-      <motion.div
-        className={styles.lid}
-        initial={{ y: -80, opacity: 0, rotate: -3 }}
-        animate={{ y: 0, opacity: 1, rotate: 0 }}
-        transition={{ ...DROP, delay: 0.2 + (n + 1) * 0.12 }}
-      >
-        Chips are still the AI trade
-      </motion.div>
-      {legs.map((leg, j) => (
-        <motion.div
-          key={leg.id}
-          className={styles.filling}
-          style={{ ["--c" as string]: BRANDS[leg.id].hex }}
-          initial={{ y: -80, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ ...DROP, delay: 0.2 + (n - j) * 0.12 }}
-        >
-          <Logo id={leg.id} size={24} />
-          <b>{leg.id}</b>
-          <span>{leg.w}%</span>
-        </motion.div>
-      ))}
-      <motion.div
-        className={styles.base}
-        initial={{ y: -60, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ ...DROP, delay: 0.2 }}
-      />
-      <motion.div
-        className={styles.stackBuy}
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ ...ENTER, delay: 1 }}
-      >
-        <Odometer value="$50.00" />
-        <span>Buy</span>
-      </motion.div>
-    </div>
-  );
 }
 
 /* ───────────────────────── what bread enables (ugly.cash 2×2) ───────────────────────── */
