@@ -12,6 +12,7 @@ import {
 } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { TESTFLIGHT_URL } from "@/lib/sandwiches";
+import { HomeNavbar } from "../HomeNavbar";
 import type { BrandKey } from "./brands";
 import { Logo, LogoStack } from "./Logo";
 import { Odometer } from "./Odometer";
@@ -93,32 +94,6 @@ function useJitter(base: number) {
 }
 
 /* ───────────────────────── nav ───────────────────────── */
-
-function Nav() {
-  return (
-    <header className={styles.nav}>
-      <nav className={styles.navPill} aria-label="Primary navigation">
-        <a href="#top" className={styles.navIcon} aria-label="Bread home">
-          <Image src="/logo.png" alt="" width={493} height={479} priority />
-        </a>
-        <a href={X_URL} target="_blank" rel="noreferrer" className={styles.navX} aria-label="Bread on X">
-          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-          </svg>
-        </a>
-        <div className={styles.navGet}>
-          <a href={TESTFLIGHT_URL} target="_blank" rel="noopener noreferrer" className={styles.glossy}>
-            Join TestFlight
-          </a>
-          <span className={styles.navQr} aria-hidden="true">
-            <Image src="/testflight-qr.svg" alt="" width={128} height={128} />
-            <span>Point your iPhone camera here</span>
-          </span>
-        </div>
-      </nav>
-    </header>
-  );
-}
 
 function AppleIcon() {
   return (
@@ -1084,51 +1059,18 @@ function LogoGrid({ ids }: { ids: BrandKey[] }) {
 }
 
 function Markets() {
-  const rail = useRef<HTMLDivElement>(null);
-  const [page, setPage] = useState(0);
-
-  const onScroll = () => {
-    const el = rail.current;
-    if (!el) return;
-    const card = el.firstElementChild as HTMLElement | null;
-    const step = card ? card.offsetWidth + 16 : el.clientWidth;
-    setPage(Math.round(el.scrollLeft / step));
-  };
-
-  const go = (dir: 1 | -1) => {
-    const el = rail.current;
-    const card = el?.firstElementChild as HTMLElement | null;
-    if (!el || !card) return;
-    el.scrollBy({ left: dir * (card.offsetWidth + 16), behavior: "smooth" });
-  };
-
   return (
     <section className={styles.section} id="markets">
-      <div className={styles.railHead}>
-        <Reveal>
-          <h2 className={styles.h2}>If it trades, it fits in a sandwich</h2>
-        </Reveal>
-        <div className={styles.railBtns}>
-          <button type="button" onClick={() => go(-1)} aria-label="Previous">
-            ←
-          </button>
-          <button type="button" onClick={() => go(1)} aria-label="Next">
-            →
-          </button>
-        </div>
-      </div>
-      <div ref={rail} className={styles.rail} onScroll={onScroll}>
+      <Reveal>
+        <h2 className={styles.h2}>If it trades, it fits in a sandwich</h2>
+      </Reveal>
+      <div className={styles.marketGrid}>
         {MARKETS.map((m, i) => (
-          <Reveal key={m.title} className={styles.railItem} delay={Math.min(i, 3) * 0.06}>
+          <Reveal key={m.title} className={styles.railItem} delay={(i % 3) * 0.06}>
             <div className={`${styles.card} ${styles.railCard} ${m.tone}`}>{m.visual}</div>
             <h3>{m.title}</h3>
             <p>{m.body}</p>
           </Reveal>
-        ))}
-      </div>
-      <div className={styles.railDots} aria-hidden="true">
-        {MARKETS.map((m, i) => (
-          <i key={m.title} className={i === page ? styles.railDotOn : undefined} />
         ))}
       </div>
     </section>
@@ -1212,7 +1154,7 @@ function Footer() {
 export function Landing() {
   return (
     <div className={styles.page}>
-      <Nav />
+      <HomeNavbar />
       <main>
         <Hero />
         <Manifesto />
