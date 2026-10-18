@@ -12,7 +12,6 @@ import {
 } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { TESTFLIGHT_URL } from "@/lib/sandwiches";
-import { HomeNavbar } from "../HomeNavbar";
 import type { BrandKey } from "./brands";
 import { Logo } from "./Logo";
 import { Odometer } from "./Odometer";
@@ -947,7 +946,6 @@ function Footer() {
 export function Landing() {
   return (
     <div className={styles.page}>
-      <HomeNavbar />
       <main>
         <Hero />
         <Manifesto />
