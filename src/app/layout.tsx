@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Geist_Mono, Instrument_Serif, Rubik_Mono_One } from "next/font/google";
+import { Geist_Mono, Instrument_Serif, Inter, Rubik_Mono_One } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
 const rubikMonoOne = Rubik_Mono_One({
@@ -14,6 +15,19 @@ const instrumentSerif = Instrument_Serif({
   weight: "400",
   style: ["normal", "italic"],
   variable: "--font-serif",
+  display: "swap",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const sfRounded = localFont({
+  src: "../fonts/sf-pro-rounded-heavy.woff2",
+  weight: "800",
+  variable: "--font-sf-rounded",
   display: "swap",
 });
 
@@ -35,7 +49,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${rubikMonoOne.variable} ${instrumentSerif.variable} ${geistMono.variable}`}>
+    <html lang="en" className={`${rubikMonoOne.variable} ${instrumentSerif.variable} ${geistMono.variable} ${inter.variable} ${sfRounded.variable}`}>
       <body>{children}</body>
     </html>
   );
