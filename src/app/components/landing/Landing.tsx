@@ -14,7 +14,7 @@ import { useEffect, useRef, useState } from "react";
 import { TESTFLIGHT_URL } from "@/lib/sandwiches";
 import { HomeNavbar } from "../HomeNavbar";
 import type { BrandKey } from "./brands";
-import { Logo, LogoStack } from "./Logo";
+import { Logo } from "./Logo";
 import { Odometer } from "./Odometer";
 import styles from "./landing.module.css";
 
@@ -470,20 +470,33 @@ function WhenSeen({ children, className }: { children: React.ReactNode; classNam
   );
 }
 
+/* Real screens from the app (the same captures the pitch deck uses). */
 const FLOW = [
-  { title: "Say the idea", body: "Type a take, or paste a link from X, YouTube or Substack." },
-  { title: "Bread builds the sandwich", body: "It picks the assets behind the idea and weights each one. Every leg is visible." },
-  { title: "Tap buy", body: "Choose an amount. One tap buys every leg, and network fees are on us." },
-  { title: "Watch it cook", body: "Your sandwich tracks live from the second you buy it." },
+  {
+    title: "Bring in an idea",
+    body: "Share a YouTube video, reply @breadappfun under a post, like it on X, or type your own take. Bread turns it into a sandwich: a basket of the assets behind the idea.",
+    shot: "/deck/deck/app-new-sandwich.webp",
+    alt: "New Sandwich screen in Bread, with a text box and the Sandwich Agent switch",
+  },
+  {
+    title: "It lands in your feed as a trade",
+    body: "Every post in the feed is live. You see who called it, where it came from, and how it has done since, like +182% on a YouTube take.",
+    shot: "/deck/deck/app-feed.webp",
+    alt: "Bread feed showing trending posts from YouTube and X, each with the return of its sandwich",
+  },
+  {
+    title: "Long or short in one tap",
+    body: "Open any sandwich or asset and back it. Stocks, perps and crypto, spot or perp, from one balance.",
+    shot: "/deck/deck/app-meta.webp",
+    alt: "Meta asset screen with a price chart and Long and Short buttons",
+  },
+  {
+    title: "Follow the people who are right",
+    body: "Profiles show real holdings and PnL, so you can follow the people whose calls actually work.",
+    shot: "/deck/deck/app-profile.webp",
+    alt: "Bread profile with PnL chart and a list of held sandwiches",
+  },
 ] as const;
-
-const IDEA = "chips are still the AI trade";
-
-const FLOW_LEGS: { id: "NVDA" | "AVGO" | "AMD"; w: number; price: string; pnl: string }[] = [
-  { id: "NVDA", w: 40, price: "$182.40", pnl: "+21.30%" },
-  { id: "AVGO", w: 35, price: "$349.90", pnl: "+16.84%" },
-  { id: "AMD", w: 25, price: "$233.08", pnl: "+15.02%" },
-];
 
 function HowBreadWorks() {
   const ref = useRef<HTMLElement>(null);
@@ -507,6 +520,9 @@ function HowBreadWorks() {
       <div className={styles.flowSticky}>
         <div className={styles.flowCopy}>
           <h2 className={styles.h2}>How Bread works</h2>
+          <p className={styles.flowLede}>
+            Bread is a social network where every idea is tradable.
+          </p>
           <ol className={styles.flowSteps}>
             {FLOW.map((s, i) => (
               <li key={s.title} className={i === step ? styles.flowStepOn : undefined}>
@@ -523,6 +539,7 @@ function HowBreadWorks() {
         </div>
 
         <div className={styles.flowPhone}>
+          <p className={styles.flowLedeMobile}>Bread is a social network where every idea is tradable.</p>
           <div className={styles.flowDots} aria-hidden="true">
             {FLOW.map((s, i) => (
               <i key={s.title} className={i <= step ? styles.flowDotOn : undefined} />
@@ -530,32 +547,20 @@ function HowBreadWorks() {
           </div>
           <div className={styles.flowFrame}>
             <div className={styles.phoneIsland} />
-            <div className={styles.appScreen}>
-              <AppStatus />
-              <AnimatePresence mode="wait" initial={false}>
-                {step === 0 ? (
-                  <motion.div
-                    key="compose"
-                    className={styles.appFill}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0, y: -12 }}
-                    transition={{ duration: 0.25 }}
-                  >
-                    <ComposeScreen />
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="sandwich"
-                    className={styles.appFill}
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={ENTER}
-                  >
-                    <SandwichScreen step={step} />
-                  </motion.div>
-                )}
-              </AnimatePresence>
+            <div className={styles.shotScreen}>
+              {/* all four stay mounted so switching never waits on a download */}
+              {FLOW.map((s, i) => (
+                <Image
+                  key={s.shot}
+                  src={s.shot}
+                  alt={s.alt}
+                  width={923}
+                  height={2000}
+                  sizes="300px"
+                  className={i === step ? styles.shotOn : styles.shot}
+                  aria-hidden={i !== step}
+                />
+              ))}
             </div>
           </div>
           <p className={styles.flowCaption} aria-live="polite">
@@ -565,218 +570,6 @@ function HowBreadWorks() {
         </div>
       </div>
     </section>
-  );
-}
-
-function AppStatus() {
-  return (
-    <div className={styles.appStatus}>
-      <span>9:41</span>
-      <span className={styles.phoneStatusIcons}>
-        <i />
-        <i />
-        <i />
-      </span>
-    </div>
-  );
-}
-
-function ComposeScreen() {
-  const typed = useTyped(IDEA, 55);
-  const done = typed.length === IDEA.length;
-  return (
-    <div className={styles.compose}>
-      <div className={styles.composeHead}>
-        <Image src="/logo.png" alt="" width={36} height={36} />
-        <b>New sandwich</b>
-      </div>
-      <p className={styles.composeHint}>What do you want to long?</p>
-      <div className={styles.composeSources}>
-        <span>or paste a link</span>
-        <LogoStack ids={["x", "youtube", "substack"]} size={22} />
-      </div>
-      <div className={styles.composer}>
-        <span className={styles.composerText}>
-          {typed}
-          <i className={styles.composerCaret} />
-        </span>
-        <motion.span
-          className={styles.composerSend}
-          animate={done ? { scale: [1, 1.18, 1], rotate: [0, -12, 0] } : { scale: 1 }}
-          transition={{ duration: 0.5, delay: 0.15 }}
-        >
-          <Image src="/sandwich-cutout.png" alt="" width={34} height={30} />
-        </motion.span>
-      </div>
-    </div>
-  );
-}
-
-function SandwichScreen({ step }: { step: number }) {
-  return (
-    <div className={styles.sw}>
-      <div className={styles.swTop}>
-        <span className={styles.swBack}>
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M15 5 8 12l7 7" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </span>
-      </div>
-
-      <div className={styles.swAuthor}>
-        <span className={styles.swAvatar}>Y</span>
-        <span>
-          <b>you</b>
-          <em>@you · now</em>
-        </span>
-      </div>
-      <p className={styles.swPost}>{IDEA}</p>
-
-      {/* tracking: the number and the curve, as the app draws them */}
-      <AnimatePresence initial={false}>
-        {step === 3 && (
-          <motion.div
-            className={styles.swMarket}
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            transition={ENTER}
-          >
-            <div className={styles.swPnl}>
-              <Odometer value="+18.42%" />
-            </div>
-            <svg viewBox="0 0 260 92" className={styles.swChart} preserveAspectRatio="none" aria-hidden="true">
-              <line x1="0" x2="260" y1="70" y2="70" stroke="#cbd2dc" strokeDasharray="3 4" />
-              <path
-                className={styles.swLine}
-                d="M0 70 L14 64 L26 72 L40 62 L54 66 L68 58 L80 63 L96 52 L110 55 L124 44 L138 48 L152 36 L168 40 L182 28 L198 33 L212 20 L228 24 L244 12 L260 16"
-                fill="none"
-                stroke="#35f046"
-                strokeWidth="2.6"
-                strokeLinejoin="round"
-                strokeLinecap="round"
-              />
-            </svg>
-            <div className={styles.swAxis}>
-              <span>Oct 18</span>
-              <span>Since created</span>
-            </div>
-            <div className={styles.swRanges}>
-              {["24H", "1W", "1M", "3M"].map((r) => (
-                <span key={r} className={r === "1W" ? styles.swRangeOn : undefined}>
-                  {r}
-                </span>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <div className={styles.swLegs}>
-        {FLOW_LEGS.map((leg, i) => (
-          <motion.div
-            key={leg.id}
-            className={styles.swLeg}
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ ...SETTLE, delay: step === 1 ? 0.35 + i * 0.22 : 0 }}
-          >
-            <Logo id={leg.id} size={40} className={styles.swLogo} />
-            <span className={styles.swLegName}>
-              <b>{leg.id}</b>
-              <em>{leg.w}%</em>
-            </span>
-            <span className={styles.swLegNums}>
-              <b>{leg.price}</b>
-              {step === 3 ? <em className={styles.swUp}>{leg.pnl}</em> : <em className={styles.swNew}>NEW</em>}
-            </span>
-          </motion.div>
-        ))}
-      </div>
-
-      {step === 1 && (
-        <motion.div
-          className={styles.swBuy}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ ...ENTER, delay: 1.1 }}
-        >
-          BUY
-        </motion.div>
-      )}
-
-      <AnimatePresence>{step === 2 && <BuySheet key="sheet" />}</AnimatePresence>
-      <AnimatePresence>
-        {step === 3 && (
-          <motion.div
-            className={styles.swToast}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ ...SETTLE, delay: 0.5 }}
-          >
-            <span>✓</span> You&apos;re in · $50.00 · 3 assets
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-const AMOUNTS = [10, 25, 50, 100];
-
-function BuySheet() {
-  // 0: sheet up · 1: $50 picked · 2: BUY pressed · 3: bought
-  const beat = useBeats([600, 1500, 1900]);
-  const picked = beat >= 1;
-  return (
-    <>
-      <motion.div
-        className={styles.sheetScrim}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-      />
-      <motion.div
-        className={styles.buySheet}
-        initial={{ y: "100%" }}
-        animate={{ y: 0 }}
-        exit={{ y: "100%" }}
-        transition={SETTLE}
-      >
-        <i className={styles.grabber} />
-        <span className={styles.sheetLabel}>Amount</span>
-        <span className={styles.sheetAmount}>
-          <Odometer key={picked ? "50" : "0"} value={picked ? "$50.00" : "$0.00"} />
-        </span>
-        <div className={styles.sheetPills}>
-          {AMOUNTS.map((a) => (
-            <span key={a} className={picked && a === 50 ? styles.sheetPillOn : undefined}>
-              ${a}
-            </span>
-          ))}
-        </div>
-        <ul className={styles.sheetSplit}>
-          {FLOW_LEGS.map((l) => (
-            <li key={l.id}>
-              <Logo id={l.id} size={18} className={styles.swLogo} />
-              {l.id}
-              <b>{picked ? `$${((50 * l.w) / 100).toFixed(2)}` : "$0.00"}</b>
-            </li>
-          ))}
-          <li className={styles.sheetFee}>
-            Network fee
-            <b>Free</b>
-          </li>
-        </ul>
-        <motion.span
-          className={`${styles.swBuy} ${beat >= 3 ? styles.swBought : ""}`}
-          animate={beat === 2 ? { scale: 0.95 } : { scale: 1 }}
-          transition={{ duration: 0.12 }}
-        >
-          {beat >= 3 ? "✓ Bought" : "BUY"}
-        </motion.span>
-      </motion.div>
-    </>
   );
 }
 
