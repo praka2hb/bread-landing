@@ -4,65 +4,84 @@ import Image from "next/image";
 import {
   AnimatePresence,
   motion,
-  useMotionValueEvent,
+  useReducedMotion,
   useScroll,
   useTransform,
   type MotionValue,
 } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { TESTFLIGHT_URL } from "@/lib/sandwiches";
-import type { BrandKey } from "./brands";
+import { BRANDS, type BrandKey } from "./brands";
 import { Logo, LogoStack } from "./Logo";
 import { Odometer } from "./Odometer";
 import styles from "./landing.module.css";
 
 const X_URL = "https://x.com/breadappfun";
-const EASE = [0.22, 1, 0.36, 1] as const;
+
+/*
+ * One motion vocabulary for the whole page.
+ * - ENTER: content arriving on screen. Decelerates, never overshoots.
+ * - SETTLE: things reacting to a state change. Critically damped.
+ * - DROP: sandwich layers falling into place, the only thing allowed to bounce.
+ */
+const EASE = [0.16, 1, 0.3, 1] as const;
+const ENTER = { duration: 0.7, ease: EASE };
+const SETTLE = { type: "spring", stiffness: 420, damping: 42 } as const;
+const DROP = { type: "spring", stiffness: 520, damping: 24, mass: 0.9 } as const;
+
+function useInView<T extends Element>(rootMargin = "-15% 0px") {
+  const ref = useRef<T>(null);
+  const [seen, setSeen] = useState(false);
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+    const io = new IntersectionObserver(([e]) => setSeen(e.isIntersecting), { rootMargin });
+    io.observe(node);
+    return () => io.disconnect();
+  }, [rootMargin]);
+  return [ref, seen] as const;
+}
+
+/** Fade-up on first view, the way every card on the page arrives. */
+function Reveal({
+  children,
+  className,
+  delay = 0,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  delay?: number;
+}) {
+  return (
+    <motion.div
+      className={className}
+      initial={{ opacity: 0, y: 28 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ ...ENTER, delay }}
+    >
+      {children}
+    </motion.div>
+  );
+}
 
 /* ───────────────────────── market data (illustrative) ───────────────────────── */
 
 type Quote = { id: BrandKey; sym: string; name: string; price: number; chg: number };
 
-const QUOTES: Quote[] = [
-  { id: "NVDA", sym: "NVDA", name: "Nvidia", price: 182.4, chg: 2.14 },
-  { id: "TSLA", sym: "TSLA", name: "Tesla", price: 412.86, chg: -1.32 },
-  { id: "AAPL", sym: "AAPL", name: "Apple", price: 247.1, chg: 0.61 },
-  { id: "META", sym: "META", name: "Meta", price: 716.3, chg: 1.08 },
-  { id: "GOOGL", sym: "GOOGL", name: "Alphabet", price: 251.6, chg: 0.92 },
-  { id: "AMD", sym: "AMD", name: "AMD", price: 233.08, chg: 4.4 },
-  { id: "PLTR", sym: "PLTR", name: "Palantir", price: 178.2, chg: 3.71 },
-  { id: "MA", sym: "MA", name: "Mastercard", price: 571.2, chg: -0.35 },
-  { id: "AVGO", sym: "AVGO", name: "Broadcom", price: 349.9, chg: 1.66 },
-  { id: "NFLX", sym: "NFLX", name: "Netflix", price: 1203.4, chg: -0.48 },
-  { id: "HOOD", sym: "HOOD", name: "Robinhood", price: 139.7, chg: 5.2 },
-  { id: "BTC", sym: "BTC", name: "Bitcoin", price: 108420, chg: 1.9 },
-  { id: "ETH", sym: "ETH", name: "Ethereum", price: 3984.2, chg: 2.6 },
-  { id: "SOL", sym: "SOL", name: "Solana", price: 196.4, chg: -3.1 },
-  { id: "ARM", sym: "ARM", name: "Arm", price: 162.3, chg: 2.2 },
-  { id: "SHOP", sym: "SHOP", name: "Shopify", price: 158.9, chg: 0.7 },
-  { id: "MCD", sym: "MCD", name: "McDonald’s", price: 301.8, chg: -0.9 },
-  { id: "SPOT", sym: "SPOT", name: "Spotify", price: 702.1, chg: 1.3 },
-  { id: "NET", sym: "NET", name: "Cloudflare", price: 221.5, chg: 3.4 },
-  { id: "QCOM", sym: "QCOM", name: "Qualcomm", price: 168.2, chg: -0.6 },
-  { id: "NKE", sym: "NKE", name: "Nike", price: 68.9, chg: -1.7 },
-  { id: "SBUX", sym: "SBUX", name: "Starbucks", price: 84.3, chg: 0.4 },
-  { id: "PYPL", sym: "PYPL", name: "PayPal", price: 69.2, chg: 1.1 },
-  { id: "ABNB", sym: "ABNB", name: "Airbnb", price: 124.6, chg: -0.3 },
-];
-
-const q = (id: BrandKey) => QUOTES.find((x) => x.id === id)!;
+const QUOTES: Record<"NVDA" | "AVGO" | "AMD", Quote> = {
+  NVDA: { id: "NVDA", sym: "NVDA", name: "Nvidia", price: 182.4, chg: 2.14 },
+  AVGO: { id: "AVGO", sym: "AVGO", name: "Broadcom", price: 349.9, chg: 1.66 },
+  AMD: { id: "AMD", sym: "AMD", name: "AMD", price: 233.08, chg: 4.4 },
+};
 
 function fmtPrice(n: number) {
-  return n.toLocaleString("en-US", {
-    minimumFractionDigits: n >= 10000 ? 0 : 2,
-    maximumFractionDigits: n >= 10000 ? 0 : 2,
-  });
+  return n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-function useJitter(base: number, enabled = true) {
+function useJitter(base: number) {
   const [v, setV] = useState(base);
   useEffect(() => {
-    if (!enabled) return;
     const id = setInterval(() => {
       setV((prev) => {
         const next = prev * (1 + (Math.random() - 0.47) * 0.004);
@@ -70,43 +89,38 @@ function useJitter(base: number, enabled = true) {
       });
     }, 2200 + Math.random() * 1600);
     return () => clearInterval(id);
-  }, [base, enabled]);
+  }, [base]);
   return v;
 }
 
 /* ───────────────────────── nav ───────────────────────── */
 
 function Nav() {
-  const [scrolled, setScrolled] = useState(false);
-  useEffect(() => {
-    const on = () => setScrolled(window.scrollY > 24);
-    on();
-    window.addEventListener("scroll", on, { passive: true });
-    return () => window.removeEventListener("scroll", on);
-  }, []);
-
   return (
-    <header className={`${styles.nav} ${scrolled ? styles.navScrolled : ""}`}>
-      <nav className={styles.navInner} aria-label="Primary navigation">
+    <header className={styles.nav}>
+      <nav className={styles.navPill} aria-label="Primary navigation">
         <a href="#top" className={styles.navBrand} aria-label="Bread home">
           <Image src="/logo.png" alt="" width={493} height={479} priority />
           <span>bread</span>
         </a>
         <div className={styles.navLinks}>
           <a href="#how">How it works</a>
-          <a href="#feed">Feed</a>
+          <a href="#enables">Like2Buy</a>
           <a href="#markets">Markets</a>
-          <a href={X_URL} target="_blank" rel="noreferrer">
-            @breadappfun
+          <a href={X_URL} target="_blank" rel="noreferrer" aria-label="Bread on X">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+            </svg>
           </a>
         </div>
-        <div className={styles.navCta}>
-          <a href={TESTFLIGHT_URL} target="_blank" rel="noopener noreferrer" className={styles.navBtn}>
-            <AppleIcon /> Get the app
+        <div className={styles.navGet}>
+          <a href={TESTFLIGHT_URL} target="_blank" rel="noopener noreferrer">
+            <Image src="/logo.png" alt="" width={44} height={44} className={styles.navAppIcon} />
+            Get the app
           </a>
-          <span className={styles.qrPopover} aria-hidden="true">
-            <Image src="/testflight-qr.svg" alt="" width={132} height={132} />
-            <span>Scan with your iPhone camera</span>
+          <span className={styles.navQr} aria-hidden="true">
+            <Image src="/testflight-qr.svg" alt="" width={128} height={128} />
+            <span>Point your iPhone camera here</span>
           </span>
         </div>
       </nav>
@@ -122,15 +136,16 @@ function AppleIcon() {
   );
 }
 
-/* ───────────────────────── hero ───────────────────────── */
+/* ───────────────────────── hero (restored) ───────────────────────── */
 
 function Hero() {
   const ref = useRef<HTMLElement>(null);
+  const reduce = useReducedMotion();
 
   // Cursor parallax: each floating piece drifts at its own depth (--d).
   useEffect(() => {
     const node = ref.current;
-    if (!node || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!node || reduce) return;
     let raf = 0;
     const onMove = (e: PointerEvent) => {
       cancelAnimationFrame(raf);
@@ -144,10 +159,11 @@ function Hero() {
       window.removeEventListener("pointermove", onMove);
       cancelAnimationFrame(raf);
     };
-  }, []);
+  }, [reduce]);
 
+  // ugly.cash-style: the phone keeps rising as you scroll out of the hero
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  const stageY = useTransform(scrollYProgress, [0, 1], [0, -120]);
+  const stageY = useTransform(scrollYProgress, [0, 1], [0, -140]);
   const phoneRotate = useTransform(scrollYProgress, [0, 1], [0, -4]);
 
   return (
@@ -155,20 +171,6 @@ function Hero() {
       <div className={styles.heroGlow} aria-hidden="true" />
 
       <div className={styles.heroCopy}>
-        <motion.a
-          href={X_URL}
-          target="_blank"
-          rel="noreferrer"
-          className={styles.heroBadge}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: EASE }}
-        >
-          <span className={styles.heroBadgeDot} />
-          Now in beta on iPhone
-          <span className={styles.heroBadgeArrow}>→</span>
-        </motion.a>
-
         <h1 className={styles.heroTitle}>
           {["The internet is", "full of alpha."].map((line, i) => (
             <span key={line} className={styles.lineMask}>
@@ -198,9 +200,8 @@ function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.45, duration: 0.7, ease: EASE }}
         >
-          Paste a podcast, a post, a newsletter. Bread finds the trade inside it and
-          turns it into a sandwich — a one‑tap basket of the stocks, perps and
-          markets behind the idea.
+          Paste a podcast, a post, a newsletter. Bread finds the trade inside it and turns it
+          into a sandwich: a one‑tap basket of the stocks, perps and markets behind the idea.
         </motion.p>
 
         <motion.div
@@ -229,7 +230,6 @@ function Hero() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.35, duration: 1.1, ease: EASE }}
       >
-        {/* sources on the left */}
         <Float className={styles.fTweet} depth={26} delay={0.7}>
           <div className={styles.tweet}>
             <div className={styles.tweetHead}>
@@ -241,8 +241,8 @@ function Hero() {
               <Logo id="x" size={22} className={styles.tweetSource} />
             </div>
             <p>
-              AI capex isn&apos;t slowing down. every hyperscaler just raised guidance
-              again. <span className={styles.tweetHot}>chips are still the trade.</span>
+              AI capex isn&apos;t slowing down. every hyperscaler just raised guidance again.{" "}
+              <span className={styles.tweetHot}>chips are still the trade.</span>
             </p>
             <div className={styles.tweetStats}>
               <span>♡ 4.2K</span>
@@ -275,20 +275,18 @@ function Hero() {
           </div>
         </Float>
 
-        {/* the phone */}
         <motion.div className={styles.phoneWrap} style={{ rotate: phoneRotate }}>
           <Phone />
         </motion.div>
 
-        {/* markets on the right */}
         <Float className={styles.fQuoteA} depth={30} delay={0.8}>
-          <QuoteCard quote={q("NVDA")} />
+          <QuoteCard quote={QUOTES.NVDA} />
         </Float>
         <Float className={styles.fQuoteB} depth={46} delay={0.95}>
-          <QuoteCard quote={q("AVGO")} />
+          <QuoteCard quote={QUOTES.AVGO} />
         </Float>
         <Float className={styles.fQuoteC} depth={22} delay={1.1}>
-          <QuoteCard quote={q("AMD")} />
+          <QuoteCard quote={QUOTES.AMD} />
         </Float>
 
         <Float className={styles.fToast} depth={56} delay={1.6}>
@@ -351,7 +349,7 @@ function QuoteCard({ quote }: { quote: Quote }) {
   );
 }
 
-const PHONE_LEGS: { id: BrandKey; w: number }[] = [
+const PHONE_LEGS: { id: "NVDA" | "AVGO" | "AMD"; w: number }[] = [
   { id: "NVDA", w: 40 },
   { id: "AVGO", w: 35 },
   { id: "AMD", w: 25 },
@@ -370,27 +368,22 @@ function Phone() {
             <i />
           </span>
         </div>
-
         <div className={styles.phoneTop}>
           <span className={styles.phoneBack}>‹</span>
           <span>Sandwich</span>
           <span className={styles.phoneShare}>↗</span>
         </div>
-
         <div className={styles.phoneAuthor}>
           <Image src="/avatar-jukan.jpg" alt="" width={30} height={30} />
           <span>
             from <b>@jukan05</b> on <Logo id="x" size={16} />
           </span>
         </div>
-
         <h3 className={styles.phoneThesis}>Chips are still the AI trade</h3>
-
         <div className={styles.phonePnl}>
           <Odometer value="+18.42%" />
           <span>since posted</span>
         </div>
-
         <svg viewBox="0 0 260 96" className={styles.phoneChart} preserveAspectRatio="none" aria-hidden="true">
           <defs>
             <linearGradient id="phoneFill" x1="0" x2="0" y1="0" y2="1">
@@ -419,61 +412,28 @@ function Phone() {
             </span>
           ))}
         </div>
-
         <ul className={styles.phoneLegs}>
           {PHONE_LEGS.map((l) => (
             <li key={l.id}>
               <Logo id={l.id} size={30} />
               <div>
-                <b>{q(l.id).sym}</b>
-                <span>{q(l.id).name}</span>
+                <b>{QUOTES[l.id].sym}</b>
+                <span>{QUOTES[l.id].name}</span>
               </div>
               <em>{l.w}%</em>
             </li>
           ))}
         </ul>
-
         <div className={styles.phoneBuy}>Buy this sandwich</div>
       </div>
     </div>
   );
 }
 
-/* ───────────────────────── ticker wall ───────────────────────── */
-
-function TickerWall() {
-  const rowA = QUOTES.slice(0, 12);
-  const rowB = QUOTES.slice(12);
-  return (
-    <section className={styles.wall} aria-label="Markets you can trade">
-      <p className={styles.wallLabel}>
-        Stocks, perps and prediction markets — <b>all in one sandwich.</b>
-      </p>
-      {[rowA, rowB].map((row, r) => (
-        <div key={r} className={styles.wallRow}>
-          <div className={`${styles.wallTrack} ${r ? styles.wallTrackReverse : ""}`}>
-            {[...row, ...row].map((x, i) => (
-              <span key={`${x.sym}${i}`} className={styles.chip} aria-hidden={i >= row.length}>
-                <Logo id={x.id} size={30} />
-                <b>{x.sym}</b>
-                <span>${fmtPrice(x.price)}</span>
-                <em className={x.chg >= 0 ? styles.up : styles.down}>
-                  {x.chg >= 0 ? "+" : "−"}
-                  {Math.abs(x.chg).toFixed(2)}%
-                </em>
-              </span>
-            ))}
-          </div>
-        </div>
-      ))}
-    </section>
-  );
-}
-
 /* ───────────────────────── manifesto ───────────────────────── */
 
 const MANIFESTO =
-  "Every day someone on the internet calls the next big trade. On a podcast at minute 94. In a post at 2am. In a newsletter nobody finishes. By the time you find it, it’s priced in. Bread reads it all — and hands you the trade.";
+  "Most financial ideas are borrowed from the internet. A creator on YouTube at minute 94. A thread on X at 2am. A Substack you saved and never opened. By the time it reaches you, it’s priced in. Bread puts the trade right next to the idea, while it’s still early.";
 
 function ManifestoWord({
   word,
@@ -484,8 +444,8 @@ function ManifestoWord({
   progress: MotionValue<number>;
   range: [number, number];
 }) {
-  const opacity = useTransform(progress, range, [0.16, 1]);
-  const hot = /priced|trade\.|Bread/.test(word);
+  const opacity = useTransform(progress, range, [0.18, 1]);
+  const hot = /^(priced|early\.)/.test(word);
   return (
     <motion.span style={{ opacity }} className={hot ? styles.manifestoHot : undefined}>
       {word}{" "}
@@ -500,16 +460,13 @@ function Manifesto() {
   return (
     <section ref={ref} className={styles.manifesto}>
       <div className={styles.manifestoSticky}>
-        <span className={styles.labelDark}>
-          <i /> Why Bread
-        </span>
         <p className={styles.manifestoText}>
           {words.map((w, i) => (
             <ManifestoWord
               key={i}
               word={w}
               progress={scrollYProgress}
-              range={[(i / words.length) * 0.82, ((i + 1) / words.length) * 0.82]}
+              range={[(i / words.length) * 0.8, ((i + 1) / words.length) * 0.8]}
             />
           ))}
         </p>
@@ -518,89 +475,71 @@ function Manifesto() {
   );
 }
 
-/* ───────────────────────── how it works ───────────────────────── */
+/* ───────────────────────── how bread works (ugly.cash 3-up) ───────────────────────── */
 
-const STEPS = [
-  {
-    n: "01",
-    title: "Paste anything.",
-    body: "A YouTube link, an X post, a Substack, a Reddit thread. If a human said it out loud, Bread can read it.",
-  },
-  {
-    n: "02",
-    title: "Bread finds the alpha.",
-    body: "It listens to the whole thing and pulls out every tradable moment — timestamped, with the exact quote.",
-  },
-  {
-    n: "03",
-    title: "Buy the sandwich.",
-    body: "Each idea becomes a sandwich: the right stocks, perps or prediction markets, weighted and ready in one tap.",
-  },
-];
-
-function HowItWorks() {
-  const ref = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
-  const [step, setStep] = useState(0);
-  useMotionValueEvent(scrollYProgress, "change", (v) => {
-    setStep(Math.min(STEPS.length - 1, Math.max(0, Math.floor(v * STEPS.length))));
-  });
-
+/** Mounts a demo only once its card is on screen, so its timeline plays where you can see it. */
+function WhenSeen({ children, className }: { children: React.ReactNode; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [played, setPlayed] = useState(false);
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) {
+          setPlayed(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: "-20% 0px" },
+    );
+    io.observe(node);
+    return () => io.disconnect();
+  }, []);
   return (
-    <section ref={ref} className={styles.how} id="how">
-      <div className={styles.howSticky}>
-        <div className={styles.howLeft}>
-          <span className={styles.label}>
-            <i /> How a sandwich is made
-          </span>
-          <ol className={styles.howList}>
-            {STEPS.map((s, i) => (
-              <li key={s.n} className={i === step ? styles.howItemOn : styles.howItem}>
-                <span className={styles.howNum}>{s.n}</span>
-                <div>
-                  <h2>{s.title}</h2>
-                  <AnimatePresence initial={false}>
-                    {i === step && (
-                      <motion.p
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.45, ease: EASE }}
-                      >
-                        {s.body}
-                      </motion.p>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </li>
-            ))}
-          </ol>
-        </div>
+    <div ref={ref} className={className}>
+      {played ? children : null}
+    </div>
+  );
+}
 
-        <div className={styles.howRight}>
-          <div className={styles.howFrame}>
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={step}
-                className={styles.howCard}
-                initial={{ opacity: 0, y: 40, scale: 0.96 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -30, scale: 0.97 }}
-                transition={{ type: "spring", stiffness: 220, damping: 26 }}
-              >
-                {step === 0 && <PasteDemo />}
-                {step === 1 && <MomentsDemo />}
-                {step === 2 && <SandwichDemo />}
-              </motion.div>
-            </AnimatePresence>
-          </div>
-        </div>
+function HowBreadWorks() {
+  return (
+    <section className={styles.section} id="how">
+      <Reveal>
+        <h2 className={styles.h2}>How Bread works</h2>
+      </Reveal>
+      <div className={styles.three}>
+        <Reveal className={styles.feature} delay={0}>
+          <WhenSeen className={`${styles.card} ${styles.cardWhite}`}>
+            <PasteDemo />
+          </WhenSeen>
+          <h3>Paste anything</h3>
+          <p>
+            Share a link, reply @breadappfun under a post, or just like it on X. Every idea
+            credits whoever brought it in.
+          </p>
+        </Reveal>
+        <Reveal className={styles.feature} delay={0.08}>
+          <WhenSeen className={`${styles.card} ${styles.cardWhite}`}>
+            <MomentsDemo />
+          </WhenSeen>
+          <h3>Bread finds the calls</h3>
+          <p>It reads the whole thing and pulls out every tradable moment, with the timestamp and exact words.</p>
+        </Reveal>
+        <Reveal className={styles.feature} delay={0.16}>
+          <WhenSeen className={`${styles.card} ${styles.cardGreen}`}>
+            <SandwichDemo />
+          </WhenSeen>
+          <h3>Buy the sandwich</h3>
+          <p>Each call becomes a basket of stocks, perps or prediction markets. One tap, network fees on us.</p>
+        </Reveal>
       </div>
     </section>
   );
 }
 
-function useTyped(text: string, speed = 34) {
+function useTyped(text: string, speed = 32) {
   const [out, setOut] = useState("");
   useEffect(() => {
     let i = 0;
@@ -614,94 +553,85 @@ function useTyped(text: string, speed = 34) {
   return out;
 }
 
-const SOURCES: { id: BrandKey; label: string }[] = [
-  { id: "youtube", label: "YouTube" },
-  { id: "x", label: "X" },
-  { id: "substack", label: "Substack" },
-  { id: "reddit", label: "Reddit" },
-  { id: "podcasts", label: "Podcasts" },
-  { id: "tiktok", label: "TikTok" },
-];
+/** Steps a demo through its beats at the given offsets (ms). */
+function useBeats(offsets: readonly number[]) {
+  const [beat, setBeat] = useState(0);
+  const key = offsets.join(",");
+  useEffect(() => {
+    const ids = key.split(",").map((ms, i) => setTimeout(() => setBeat(i + 1), Number(ms)));
+    return () => ids.forEach(clearTimeout);
+  }, [key]);
+  return beat;
+}
 
 function PasteDemo() {
   const url = "youtube.com/watch?v=k4fzywme6u";
-  const typed = useTyped(url);
+  const typed = useTyped(url, 38);
   const done = typed.length === url.length;
   return (
     <div className={styles.demo}>
-      <div className={styles.pasteBox}>
-        <Logo id="youtube" size={30} />
+      <div className={styles.paste}>
+        <Logo id="youtube" size={26} />
         <span className={styles.pasteText}>
           {typed}
-          <i className={styles.caret} />
+          {!done && <i className={styles.caret} />}
         </span>
-        <span className={`${styles.pasteGo} ${done ? styles.pasteGoReady : ""}`}>Cook</span>
+        <span className={done ? styles.pasteGoOn : styles.pasteGo}>Cook</span>
       </div>
-      <div className={styles.sourceRow}>
-        {SOURCES.map((s, i) => (
-          <motion.span
-            key={s.label}
-            className={styles.sourceChip}
+      <div className={styles.thumb}>
+        <Image src="/youtube-k4fzywme6u.jpg" alt="" fill sizes="360px" />
+        <span className={styles.thumbTime}>1:42:07</span>
+      </div>
+      <div className={styles.track}>
+        <motion.i initial={{ scaleX: 0 }} animate={{ scaleX: done ? 1 : 0.04 }} transition={{ duration: 1.8, ease: EASE }} />
+      </div>
+      <AnimatePresence>
+        {done && (
+          <motion.div
+            className={styles.credit}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.12 + i * 0.06 }}
+            transition={{ ...SETTLE, delay: 1.6 }}
           >
-            <Logo id={s.id} size={20} />
-            {s.label}
-          </motion.span>
-        ))}
-      </div>
-      <div className={styles.thumbRow}>
-        <div className={styles.thumb}>
-          <Image src="/youtube-k4fzywme6u.jpg" alt="" fill sizes="360px" />
-        </div>
-        <div className={styles.thumbMeta}>
-          <b>Macro pod, ep. 212</b>
-          <span>1h 42m · 3 hosts</span>
-          <div className={styles.progress}>
-            <motion.i
-              initial={{ width: "0%" }}
-              animate={{ width: done ? "100%" : "6%" }}
-              transition={{ duration: 1.6, ease: "easeInOut" }}
-            />
-          </div>
-          <span className={styles.progressLabel}>{done ? "Listening to all 102 minutes…" : "Waiting for a link"}</span>
-        </div>
-      </div>
+            <span>brought in by</span>
+            <b>
+              <Image src="/landing/x-saint.jpg" alt="" width={18} height={18} /> @Saint_pablo123
+            </b>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
 
-const MOMENTS: { t: string; q: string; tag: string; side: "long" | "short" | "yes"; ids: BrandKey[] }[] = [
-  { t: "14:32", q: "Every hyperscaler raised capex again. The chip trade isn’t done.", tag: "Long", side: "long", ids: ["NVDA", "AVGO", "AMD"] },
-  { t: "38:05", q: "EV demand is rolling over. I’d be short into earnings.", tag: "Short", side: "short", ids: ["TSLA"] },
-  { t: "1:07:44", q: "A December cut is way more likely than people think.", tag: "Yes", side: "yes", ids: [] },
+const MOMENTS: { t: string; q: string; side: "Long" | "Short" | "Yes"; ids: BrandKey[] }[] = [
+  { t: "14:32", q: "The chip trade isn’t done.", side: "Long", ids: ["NVDA", "AVGO", "AMD"] },
+  { t: "38:05", q: "I’d be short EVs into earnings.", side: "Short", ids: ["TSLA"] },
+  { t: "1:07:44", q: "A December cut is underpriced.", side: "Yes", ids: [] },
 ];
 
 function MomentsDemo() {
   return (
     <div className={styles.demo}>
-      <div className={styles.momentsHead}>
-        <span className={styles.liveDot} /> 3 trades found in 102 minutes
-      </div>
+      <span className={styles.mono}>3 calls in 102 minutes</span>
       <ul className={styles.moments}>
         {MOMENTS.map((m, i) => (
           <motion.li
             key={m.t}
-            initial={{ opacity: 0, x: 24 }}
+            initial={{ opacity: 0, x: 18 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.12 + i * 0.18, duration: 0.5, ease: EASE }}
+            transition={{ ...ENTER, delay: 0.15 + i * 0.18 }}
           >
             <span className={styles.momentTime}>{m.t}</span>
             <p>
-              <mark className={styles.momentMark} style={{ animationDelay: `${0.45 + i * 0.18}s` }}>
+              <mark className={styles.mark} style={{ animationDelay: `${0.5 + i * 0.18}s` }}>
                 {m.q}
               </mark>
             </p>
-            <div className={styles.momentFoot}>
-              <span className={`${styles.momentTag} ${styles[`tag_${m.side}`]}`}>{m.tag}</span>
-              {m.ids.length ? <LogoStack ids={m.ids} size={24} /> : <span className={styles.momentPm}>Fed cut · Dec</span>}
-            </div>
+            <span className={styles.momentFoot}>
+              <span className={styles[`side${m.side}`]}>{m.side}</span>
+              {m.ids.length ? <LogoStack ids={m.ids} size={22} /> : <span className={styles.mono}>Fed cut · Dec</span>}
+            </span>
           </motion.li>
         ))}
       </ul>
@@ -710,310 +640,401 @@ function MomentsDemo() {
 }
 
 function SandwichDemo() {
+  const legs = PHONE_LEGS;
+  const n = legs.length;
   return (
-    <div className={styles.demo}>
-      <div className={styles.sandwichTop}>
-        <Image src="/sandwich-cutout.png" alt="" width={64} height={64} className={styles.sandwichIcon} />
-        <div>
-          <b>Chips are still the AI trade</b>
-          <span>from 14:32 · 3 legs · long</span>
-        </div>
-      </div>
-      {PHONE_LEGS.map((l, i) => (
-        <div key={l.id} className={styles.leg}>
-          <Logo id={l.id} size={36} />
-          <div className={styles.legName}>
-            <b>{q(l.id).sym}</b>
-            <span>{q(l.id).name}</span>
-          </div>
-          <div className={styles.legBar}>
-            <motion.i
-              initial={{ width: 0 }}
-              animate={{ width: `${l.w}%` }}
-              transition={{ delay: 0.2 + i * 0.12, duration: 0.8, ease: EASE }}
-            />
-          </div>
-          <em>{l.w}%</em>
-        </div>
+    <div className={styles.stack}>
+      <motion.div
+        className={styles.lid}
+        initial={{ y: -80, opacity: 0, rotate: -3 }}
+        animate={{ y: 0, opacity: 1, rotate: 0 }}
+        transition={{ ...DROP, delay: 0.2 + (n + 1) * 0.12 }}
+      >
+        Chips are still the AI trade
+      </motion.div>
+      {legs.map((leg, j) => (
+        <motion.div
+          key={leg.id}
+          className={styles.filling}
+          style={{ ["--c" as string]: BRANDS[leg.id].hex }}
+          initial={{ y: -80, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ ...DROP, delay: 0.2 + (n - j) * 0.12 }}
+        >
+          <Logo id={leg.id} size={24} />
+          <b>{leg.id}</b>
+          <span>{leg.w}%</span>
+        </motion.div>
       ))}
-      <div className={styles.buyRow}>
-        <div className={styles.buyAmount}>
-          <span>Amount</span>
-          <Odometer value="$50.00" />
+      <motion.div
+        className={styles.base}
+        initial={{ y: -60, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ ...DROP, delay: 0.2 }}
+      />
+      <motion.div
+        className={styles.stackBuy}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ ...ENTER, delay: 1 }}
+      >
+        <Odometer value="$50.00" />
+        <span>Buy</span>
+      </motion.div>
+    </div>
+  );
+}
+
+/* ───────────────────────── what bread enables (ugly.cash 2×2) ───────────────────────── */
+
+function Enables() {
+  return (
+    <section className={styles.section} id="enables">
+      <Reveal>
+        <h2 className={styles.h2}>What Bread enables</h2>
+      </Reveal>
+      <div className={styles.two}>
+        <Reveal className={styles.feature}>
+          <Like2BuyCard />
+          <h3>Like2Buy, right inside X</h3>
+          <p>
+            Like a post and Bread microbuys the assets behind it. Or DM it to @breadappfun and pick
+            the size. You set the caps.
+          </p>
+        </Reveal>
+        <Reveal className={styles.feature} delay={0.08}>
+          <WhenSeen className={`${styles.card} ${styles.cardSky}`}>
+            <ReplyDemo />
+          </WhenSeen>
+          <h3>Summon the bot</h3>
+          <p>Reply @breadappfun under any post. It cooks the trade and replies with a sandwich you can buy.</p>
+        </Reveal>
+        <Reveal className={styles.feature}>
+          <WhenSeen className={`${styles.card} ${styles.cardLime}`}>
+            <LockScreen />
+          </WhenSeen>
+          <h3>Alerts that matter</h3>
+          <p>A big move on your feed, a sandwich you&apos;re in, someone you follow taking a position.</p>
+        </Reveal>
+        <Reveal className={styles.feature} delay={0.08}>
+          <WhenSeen className={`${styles.card} ${styles.cardLilac}`}>
+            <CreatorCard />
+          </WhenSeen>
+          <h3>Creators get paid</h3>
+          <p>When your call ends up on Bread, you earn a cut of every trade on it. Your profile is waiting to be claimed.</p>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+function Like2BuyCard() {
+  const [ref, seen] = useInView<HTMLDivElement>("0px");
+  const video = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    const v = video.current;
+    if (!v) return;
+    if (seen) v.play().catch(() => {});
+    else v.pause();
+  }, [seen]);
+  return (
+    <div ref={ref} className={`${styles.card} ${styles.cardPink}`}>
+      <video
+        ref={video}
+        className={styles.l2bVideo}
+        src="/landing/like2buy.mp4"
+        poster="/landing/like2buy-poster.jpg"
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        aria-label="Screen recording: liking a post on X buys $5 of the asset, and DMing a post to @breadappfun buys $10"
+      />
+      <span className={styles.realTag}>real screen recording</span>
+    </div>
+  );
+}
+
+function XPost({ avatar, name, handle, children }: { avatar: string; name: string; handle: string; children: React.ReactNode }) {
+  return (
+    <div className={styles.xpost}>
+      <Image src={avatar} alt="" width={34} height={34} className={styles.xAvatar} />
+      <div>
+        <div className={styles.xHead}>
+          <b>{name}</b>
+          <span>{handle}</span>
         </div>
-        <button className={styles.buyBtn} type="button">
-          Buy sandwich
-        </button>
+        <div className={styles.xBody}>{children}</div>
       </div>
     </div>
   );
 }
 
-/* ───────────────────────── feed ───────────────────────── */
-
-type Post = {
-  u: string;
-  img?: string;
-  initial?: string;
-  color?: string;
-  src: BrandKey;
-  thesis: string;
-  pnl: number;
-  legs: BrandKey[];
-  extra?: string;
-  points: number[];
-};
-
-const FEED: Post[] = [
-  { u: "jukan05", img: "/avatar-jukan.jpg", src: "x", thesis: "Chips are still the AI trade", pnl: 18.42, legs: ["NVDA", "AVGO", "AMD"], points: [8, 10, 9, 14, 13, 18, 17, 22, 26] },
-  { u: "degentrading", img: "/avatar-degentrading.jpg", src: "youtube", thesis: "Robinhood becomes the crypto bank", pnl: 21.4, legs: ["HOOD", "BTC"], points: [6, 9, 8, 12, 16, 15, 20, 24, 27] },
-  { u: "macro_mo", initial: "M", color: "#ff2d87", src: "substack", thesis: "Short the EV hype into earnings", pnl: 9.03, legs: ["TSLA"], extra: "short", points: [24, 22, 23, 18, 19, 15, 12, 13, 10] },
-  { u: "vzy", initial: "V", color: "#111214", src: "x", thesis: "Streaming wars are over. Netflix won.", pnl: -3.18, legs: ["NFLX", "SPOT"], points: [16, 18, 15, 17, 14, 15, 12, 13, 11] },
-  { u: "pizzaguy", initial: "P", color: "#ff4500", src: "reddit", thesis: "Bitcoin to new highs by Q1", pnl: 12.6, legs: ["BTC", "ETH", "SOL"], points: [10, 9, 12, 11, 15, 14, 18, 17, 21] },
-  { u: "techbro", initial: "T", color: "#0467df", src: "podcasts", thesis: "Ads + AI = the most boring 10x", pnl: 7.77, legs: ["META", "GOOGL"], points: [9, 11, 10, 12, 13, 12, 15, 16, 18] },
-];
-
-function Spark({ points, up }: { points: number[]; up: boolean }) {
-  const max = Math.max(...points);
-  const min = Math.min(...points);
-  const d = points
-    .map((p, i) => `${i ? "L" : "M"}${(i / (points.length - 1)) * 100} ${36 - ((p - min) / (max - min || 1)) * 30}`)
-    .join(" ");
-  const color = up ? "var(--up)" : "var(--down)";
+function ReplyDemo() {
+  const reply = useTyped("@breadappfun cook this", 45);
+  const beat = useBeats([1700]);
   return (
-    <svg viewBox="0 0 100 40" preserveAspectRatio="none" className={styles.feedSpark} aria-hidden="true">
-      <path d={`${d} L100 40 L0 40Z`} fill={color} opacity="0.1" />
-      <path d={d} fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
-    </svg>
+    <div className={styles.demo}>
+      <XPost avatar="/landing/x-serenity.jpg" name="Serenity" handle="@aleabitoreddit">
+        Now that <span className={styles.cashtag}>$MU</span> to <span className={styles.cashtag}>$SNDK</span> have pulled
+        a major recovery. Good to have a reminder that the memory bottleneck hasn&apos;t changed!
+      </XPost>
+      <div className={styles.thread}>
+        <XPost avatar="/avatar-degentrading.jpg" name="you" handle="@you">
+          <span className={styles.cashtag}>{reply.slice(0, 12)}</span>
+          {reply.slice(12)}
+          {reply.length < 22 && <i className={styles.caret} />}
+        </XPost>
+        <AnimatePresence>
+          {beat >= 1 && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={SETTLE}>
+              <XPost avatar="/logo.png" name="bread" handle="@breadappfun">
+                cooked 🥪 memory is still the AI bottleneck. long MU, SNDK, WDC
+                <span className={styles.botLink}>breadapp.fun/s/memory-bottleneck</span>
+              </XPost>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
   );
 }
 
-function Feed() {
-  return (
-    <section className={styles.feed} id="feed">
-      <div className={styles.sectionHead}>
-        <span className={styles.label}>
-          <i /> The feed
-        </span>
-        <h2>
-          What the internet is <span className={styles.highlight}>cooking</span> today.
-        </h2>
-        <p>Every take becomes a live position you can copy in one tap — and everyone can see how it&apos;s doing.</p>
-      </div>
+const NOTIFS = [
+  { title: "🚨 MU is up 6% in 10 minutes", body: "Biggest move on your feed today.", t: "now", img: "/landing/mu.png" },
+  { title: "Serenity’s Sandwich is up 12%", body: "Memory bottleneck. You’re in, +$3.10.", t: "2m ago", img: "/landing/x-serenity.jpg" },
+  { title: "Altcoin Sherpa went long MU", body: "3 people you follow are in.", t: "5m ago", img: "/landing/sherpa.png" },
+];
 
-      <div className={styles.feedGrid}>
-        {FEED.map((f, i) => {
-          const up = f.pnl >= 0;
-          return (
-            <motion.article
-              key={f.u}
-              className={styles.feedCard}
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ delay: (i % 3) * 0.08, duration: 0.7, ease: EASE }}
+function LockScreen() {
+  const beat = useBeats([300, 1200, 2100]);
+  const shown = NOTIFS.slice(0, beat).reverse();
+  return (
+    <div className={styles.lock}>
+      <span className={styles.lockDate}>Thursday, September 24</span>
+      <span className={styles.lockTime}>9:41</span>
+      <div className={styles.notifs}>
+        <AnimatePresence initial={false}>
+          {shown.map((n) => (
+            <motion.div
+              key={n.title}
+              layout
+              className={styles.notif}
+              initial={{ opacity: 0, y: -24, scale: 0.94 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={SETTLE}
             >
-              <div className={styles.feedUser}>
-                {f.img ? (
-                  <Image src={f.img} alt="" width={36} height={36} />
-                ) : (
-                  <span className={styles.feedAvatar} style={{ background: f.color }}>
-                    {f.initial}
-                  </span>
-                )}
-                <div>
-                  <b>@{f.u}</b>
-                  <span>via {f.src === "podcasts" ? "Podcasts" : f.src === "x" ? "X" : f.src[0].toUpperCase() + f.src.slice(1)}</span>
-                </div>
-                <Logo id={f.src} size={24} className={styles.feedSrc} />
-              </div>
-              <h3 className={styles.feedThesis}>{f.thesis}</h3>
-              <Spark points={f.points} up={up} />
-              <div className={styles.feedFoot}>
-                <LogoStack ids={f.legs} size={28} />
-                {f.extra && <span className={styles.feedShort}>{f.extra}</span>}
-                <span className={`${styles.pnl} ${up ? styles.pnlUp : styles.pnlDown}`}>
-                  {up ? "+" : "−"}
-                  {Math.abs(f.pnl).toFixed(2)}%
-                </span>
-              </div>
-            </motion.article>
-          );
-        })}
+              <Image src="/logo.png" alt="" width={32} height={32} className={styles.notifApp} />
+              <span className={styles.notifText}>
+                <b>{n.title}</b>
+                {n.body}
+              </span>
+              <span className={styles.notifSide}>
+                <em>{n.t}</em>
+                <Image src={n.img} alt="" width={24} height={24} />
+              </span>
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
-      <p className={styles.fineprint}>Cards are illustrative examples of the Bread feed.</p>
-    </section>
+    </div>
   );
 }
 
-/* ───────────────────────── markets bento ───────────────────────── */
+function CreatorCard() {
+  return (
+    <div className={styles.profile}>
+      <div className={styles.profileHead}>
+        <Image src="/landing/x-serenity.jpg" alt="" width={44} height={44} />
+        <span>
+          <b>@aleabitoreddit</b>
+          <em>shadow account · unclaimed</em>
+        </span>
+      </div>
+      <div className={styles.profileStats}>
+        <span>
+          <b>12</b>ideas
+        </span>
+        <span>
+          <b>$48k</b>volume
+        </span>
+        <span>
+          <b className={styles.up}>+31%</b>pnl
+        </span>
+      </div>
+      <div className={styles.fees}>
+        <span>creator fees earned</span>
+        <Odometer value="$1,240" className={styles.feesValue} />
+      </div>
+      <span className={styles.claim}>Claim profile</span>
+    </div>
+  );
+}
 
-const GRID_LOGOS: BrandKey[] = [
-  "NVDA", "AAPL", "TSLA", "META", "GOOGL", "AMD", "PLTR",
-  "NFLX", "AVGO", "BTC", "HOOD", "ARM", "SHOP", "MA",
-  "SPOT", "NET", "QCOM", "NKE", "SBUX", "PYPL", "ABNB",
+/* ───────────────────────── every market (carousel) ───────────────────────── */
+
+const MARKETS: { title: string; body: string; tone: string; visual: React.ReactNode }[] = [
+  {
+    title: "US stocks, 24/5",
+    body: "Tokenized equities that keep trading after the bell. Markets close, Solana doesn’t.",
+    tone: styles.cardWhite,
+    visual: <LogoGrid ids={["NVDA", "AAPL", "TSLA", "META", "GOOGL", "AMD", "PLTR", "NFLX", "COIN"]} />,
+  },
+  {
+    title: "Shorts, through perps",
+    body: "A bearish call routes to perps, so you can be right about things going down.",
+    tone: styles.cardInk,
+    visual: (
+      <div className={styles.shortViz}>
+        <Logo id="TSLA" size={44} />
+        <b>Short · 2x</b>
+        <span>+9.03%</span>
+      </div>
+    ),
+  },
+  {
+    title: "Prediction markets",
+    body: "“Will the Fed cut in December?” sits in the same basket as your stocks.",
+    tone: styles.cardSky,
+    visual: (
+      <div className={styles.predictViz}>
+        <span>Will the Fed cut in December?</span>
+        <div>
+          <b className={styles.yes}>Yes 62¢</b>
+          <b className={styles.no}>No 38¢</b>
+        </div>
+      </div>
+    ),
+  },
+  {
+    title: "Crypto, side by side",
+    body: "The majors held right alongside everything else, from one balance.",
+    tone: styles.cardLilac,
+    visual: <LogoGrid ids={["BTC", "ETH", "SOL", "XRP", "DOGE", "HOOD"]} />,
+  },
+  {
+    title: "No gas, no seed phrase",
+    body: "Sign in with email. We cover the network fees. It just feels like an app.",
+    tone: styles.cardGreen,
+    visual: <Image src="/money-jar.png" alt="" width={120} height={193} className={styles.jar} />,
+  },
 ];
+
+function LogoGrid({ ids }: { ids: BrandKey[] }) {
+  return (
+    <div className={styles.logoGrid}>
+      {ids.map((id, i) => (
+        <motion.span
+          key={id}
+          initial={{ opacity: 0, scale: 0.7 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ ...SETTLE, delay: i * 0.04 }}
+        >
+          <Logo id={id} size={48} />
+        </motion.span>
+      ))}
+    </div>
+  );
+}
 
 function Markets() {
+  const rail = useRef<HTMLDivElement>(null);
+  const [page, setPage] = useState(0);
+
+  const onScroll = () => {
+    const el = rail.current;
+    if (!el) return;
+    const card = el.firstElementChild as HTMLElement | null;
+    const step = card ? card.offsetWidth + 16 : el.clientWidth;
+    setPage(Math.round(el.scrollLeft / step));
+  };
+
+  const go = (dir: 1 | -1) => {
+    const el = rail.current;
+    const card = el?.firstElementChild as HTMLElement | null;
+    if (!el || !card) return;
+    el.scrollBy({ left: dir * (card.offsetWidth + 16), behavior: "smooth" });
+  };
+
   return (
-    <section className={styles.markets} id="markets">
-      <div className={styles.sectionHead}>
-        <span className={styles.label}>
-          <i /> Every market, one app
-        </span>
-        <h2>
-          If it trades, it fits <br className={styles.brDesk} />
-          in a sandwich.
-        </h2>
+    <section className={styles.section} id="markets">
+      <div className={styles.railHead}>
+        <Reveal>
+          <h2 className={styles.h2}>If it trades, it fits in a sandwich</h2>
+        </Reveal>
+        <div className={styles.railBtns}>
+          <button type="button" onClick={() => go(-1)} aria-label="Previous">
+            ←
+          </button>
+          <button type="button" onClick={() => go(1)} aria-label="Next">
+            →
+          </button>
+        </div>
       </div>
-
-      <div className={styles.bento}>
-        <Tile className={styles.tileStocks} dark>
-          <div className={styles.logoGrid}>
-            {GRID_LOGOS.map((id, i) => (
-              <motion.span
-                key={id}
-                initial={{ opacity: 0, scale: 0.6 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: (i % 7) * 0.04 + Math.floor(i / 7) * 0.08, type: "spring", stiffness: 260, damping: 18 }}
-              >
-                <Logo id={id} size={52} />
-              </motion.span>
-            ))}
-          </div>
-          <div className={styles.tileText}>
-            <h3>Stocks, 24/5.</h3>
-            <p>NVDA at 3am on a Tuesday. Tokenized US equities that don&apos;t close for the night.</p>
-          </div>
-        </Tile>
-
-        <Tile className={styles.tileShort}>
-          <div className={styles.shortCard}>
-            <div className={styles.shortHead}>
-              <Logo id="TSLA" size={40} />
-              <div>
-                <b>TSLA</b>
-                <span>Short · 2x</span>
-              </div>
-              <span className={styles.shortPnl}>+9.03%</span>
-            </div>
-            <svg viewBox="0 0 200 70" className={styles.shortChart} preserveAspectRatio="none" aria-hidden="true">
-              <path d="M0 12 L20 16 L36 10 L54 22 L72 20 L90 34 L108 30 L126 44 L144 40 L162 54 L180 50 L200 62" fill="none" stroke="var(--down)" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
-            </svg>
-          </div>
-          <div className={styles.tileText}>
-            <h3>Short anything.</h3>
-            <p>Bearish take? Bread routes it to perps so you can bet against it.</p>
-          </div>
-        </Tile>
-
-        <Tile className={styles.tilePredict}>
-          <div className={styles.predict}>
-            <span className={styles.predictQ}>Will the Fed cut in December?</span>
-            <div className={styles.predictBar}>
-              <motion.i
-                initial={{ width: 0 }}
-                whileInView={{ width: "62%" }}
-                viewport={{ once: true }}
-                transition={{ duration: 1.1, ease: EASE }}
-              />
-            </div>
-            <div className={styles.predictBtns}>
-              <span className={styles.yes}>Yes 62¢</span>
-              <span className={styles.no}>No 38¢</span>
-            </div>
-          </div>
-          <div className={styles.tileText}>
-            <h3>Prediction markets.</h3>
-            <p>&ldquo;Will the Fed cut?&rdquo; is a trade now. Yes and No, right next to your stocks.</p>
-          </div>
-        </Tile>
-
-        <Tile className={styles.tileGas} green>
-          <div className={styles.gasVisual}>
-            <div className={styles.signIn}>
-              <span>Continue with email</span>
-              <i>you@gmail.com</i>
-            </div>
-            <Image src="/money-jar.png" alt="" width={120} height={193} className={styles.jar} />
-          </div>
-          <div className={styles.tileText}>
-            <h3>No gas. No seed phrase.</h3>
-            <p>Sign in with email. We cover network fees. It just feels like an app.</p>
-          </div>
-        </Tile>
+      <div ref={rail} className={styles.rail} onScroll={onScroll}>
+        {MARKETS.map((m, i) => (
+          <Reveal key={m.title} className={styles.railItem} delay={Math.min(i, 3) * 0.06}>
+            <div className={`${styles.card} ${styles.railCard} ${m.tone}`}>{m.visual}</div>
+            <h3>{m.title}</h3>
+            <p>{m.body}</p>
+          </Reveal>
+        ))}
+      </div>
+      <div className={styles.railDots} aria-hidden="true">
+        {MARKETS.map((m, i) => (
+          <i key={m.title} className={i === page ? styles.railDotOn : undefined} />
+        ))}
       </div>
     </section>
   );
 }
 
-function Tile({
-  className,
-  dark,
-  green,
-  children,
-}: {
-  className: string;
-  dark?: boolean;
-  green?: boolean;
-  children: React.ReactNode;
-}) {
+/* ───────────────────────── statement + get it ───────────────────────── */
+
+function Statement() {
+  const ref = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const x = useTransform(scrollYProgress, [0, 1], ["6%", "-6%"]);
   return (
-    <motion.div
-      className={`${styles.tile} ${dark ? styles.tileDark : ""} ${green ? styles.tileGreen : ""} ${className}`}
-      initial={{ opacity: 0, y: 40 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.8, ease: EASE }}
-    >
-      {children}
-    </motion.div>
+    <section ref={ref} className={styles.statement}>
+      <motion.h2 style={{ x }}>
+        Billions must <span className={styles.highlight}>trade.</span>
+      </motion.h2>
+      <p>The internet made financial information free. Bread puts the trade right next to it.</p>
+    </section>
   );
 }
 
-/* ───────────────────────── CTA + footer ───────────────────────── */
-
-function Cta() {
+function GetIt() {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const skyY = useTransform(scrollYProgress, [0, 1], ["-10%", "10%"]);
-  const sandwichY = useTransform(scrollYProgress, [0, 1], [120, -120]);
-  const sandwichR = useTransform(scrollYProgress, [0, 1], [-16, 12]);
+  const skyY = useTransform(scrollYProgress, [0, 1], ["-8%", "8%"]);
+  const sandwichY = useTransform(scrollYProgress, [0, 1], [60, -60]);
+  const sandwichR = useTransform(scrollYProgress, [0, 1], [-10, 8]);
 
   return (
-    <section ref={ref} className={styles.cta}>
-      <div className={styles.ctaCard}>
-        <motion.div className={styles.ctaSky} style={{ y: skyY }}>
+    <section ref={ref} className={styles.get}>
+      <div className={styles.getCard}>
+        <motion.div className={styles.getSky} style={{ y: skyY }}>
           <Image src="/hero-sky-v2.png" alt="" fill sizes="100vw" />
         </motion.div>
-        <motion.div className={styles.ctaSandwich} style={{ y: sandwichY, rotate: sandwichR }}>
-          <Image src="/sandwich-cutout.png" alt="" width={320} height={320} />
-        </motion.div>
-        <div className={styles.ctaCopy}>
-          <h2>
-            Stop scrolling past alpha.
-            <br />
-            Start eating it.
-          </h2>
-          <div className={styles.ctaActions}>
-            <a href={TESTFLIGHT_URL} className={styles.btnPrimary} target="_blank" rel="noopener noreferrer">
+        <div className={styles.getCopy}>
+          <h2>Get Bread on your iPhone.</h2>
+          <p>Live on TestFlight. Free to join.</p>
+          <div className={styles.getActions}>
+            <a href={TESTFLIGHT_URL} className={styles.btnLight} target="_blank" rel="noopener noreferrer">
               <AppleIcon />
-              <span className={styles.btnStack}>
-                <small>Join the beta on</small>
-                TestFlight
-              </span>
+              Join on TestFlight
             </a>
-            <div className={styles.ctaQr}>
-              <Image src="/testflight-qr.svg" alt="TestFlight QR code" width={84} height={84} />
-              <span>
-                Or scan
-                <br />
-                with iPhone
-              </span>
-            </div>
+            <span className={styles.getQr}>
+              <Image src="/testflight-qr.svg" alt="QR code to join Bread on TestFlight" width={88} height={88} />
+            </span>
           </div>
         </div>
+        <motion.div className={styles.getSandwich} style={{ y: sandwichY, rotate: sandwichR }}>
+          <Image src="/sandwich-cutout.png" alt="" width={640} height={567} />
+        </motion.div>
       </div>
     </section>
   );
@@ -1022,37 +1043,21 @@ function Cta() {
 function Footer() {
   return (
     <footer className={styles.footer}>
-      <div className={styles.footerTop}>
-        <div className={styles.footerBrand}>
-          <Image src="/logo.png" alt="" width={493} height={479} />
-          <p>Ideas become trades.</p>
-        </div>
-        <div className={styles.footerCols}>
-          <div>
-            <span>Product</span>
-            <a href="#how">How it works</a>
-            <a href="#feed">Feed</a>
-            <a href="/sandwiches">Sandwiches</a>
-          </div>
-          <div>
-            <span>Get Bread</span>
-            <a href={TESTFLIGHT_URL} target="_blank" rel="noopener noreferrer">TestFlight</a>
-            <a href="/download">Download</a>
-          </div>
-          <div>
-            <span>Social</span>
-            <a href={X_URL} target="_blank" rel="noreferrer">X / Twitter</a>
-          </div>
-        </div>
-      </div>
       <Image src="/breadtext.PNG" alt="Bread" width={2560} height={1088} className={styles.footerWordmark} />
-      <div className={styles.footerBottom}>
+      <div className={styles.footerRow}>
         <span>© {new Date().getFullYear()} Bread</span>
-        <p>
-          Prices, positions and returns shown are illustrative. Trading involves risk; nothing here is
-          investment advice. Logos are trademarks of their respective owners.
-        </p>
+        <nav aria-label="Footer">
+          <a href="/sandwiches">Sandwiches</a>
+          <a href="/download">Download</a>
+          <a href={X_URL} target="_blank" rel="noreferrer">
+            X
+          </a>
+        </nav>
       </div>
+      <p className={styles.fine}>
+        Examples on this page are illustrative. Trading involves risk and nothing here is investment
+        advice. Logos belong to their owners.
+      </p>
     </footer>
   );
 }
@@ -1065,13 +1070,13 @@ export function Landing() {
       <Nav />
       <main>
         <Hero />
-        <TickerWall />
         <Manifesto />
-        <div className={styles.curtain}>
-          <HowItWorks />
-          <Feed />
+        <div className={styles.sheet}>
+          <HowBreadWorks />
+          <Enables />
           <Markets />
-          <Cta />
+          <Statement />
+          <GetIt />
         </div>
       </main>
       <Footer />
