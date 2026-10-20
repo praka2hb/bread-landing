@@ -58,7 +58,10 @@ body {
 
 html {
   scroll-behavior: smooth;
+  overflow-x: clip;
 }
+
+body { overflow-x: clip; }
 
 @keyframes float {
   0%, 100% { transform: translateY(0px); }

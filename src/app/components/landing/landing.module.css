@@ -760,7 +760,18 @@
   letter-spacing: -0.035em;
 }
 
-.manifestoHot { color: var(--green); }
+/* the word the paragraph lands on, in sky blue */
+.manifestoLand {
+  color: #65c7f8;
+  background: linear-gradient(180deg, #78d2fd, #53bdf4);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-decoration: underline;
+  text-decoration-color: rgba(101, 199, 248, 0.45);
+  text-decoration-thickness: 0.07em;
+  text-underline-offset: 0.14em;
+}
 
 .sheet {
   position: relative;
@@ -1591,4 +1602,1921 @@
 .card > *,
 .demo > * {
   min-width: 0;
+}
+
+/* ───────── how bread works: Duolingo-style floating props around the phone ───────── */
+
+.world {
+  --wx: 0;
+  --wy: 0;
+  position: relative;
+}
+
+.worldFar,
+.worldNear {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* far props drift less with the cursor and sit behind the phone, like Duolingo's _Far nulls */
+.worldFar {
+  z-index: 0;
+  transform: translate3d(calc(var(--wx) * -10px), calc(var(--wy) * -10px), 0) scale(0.92);
+  opacity: 0.85;
+  transition: transform 0.8s var(--ease-out);
+}
+
+.worldNear {
+  z-index: 3;
+  transform: translate3d(calc(var(--wx) * -34px), calc(var(--wy) * -34px), 0);
+  transition: transform 0.6s var(--ease-out);
+}
+
+.world > .flowFrame {
+  z-index: 1;
+}
+
+.worldProp {
+  position: absolute;
+  left: calc(var(--px) * 1%);
+  translate: -50% -50%;
+}
+
+.worldBob {
+  display: inline-block;
+  animation: worldBob 5.2s ease-in-out infinite;
+}
+
+.worldFar .worldBob {
+  animation-duration: 7.5s;
+}
+
+@keyframes worldBob {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-12px) rotate(3deg); }
+}
+
+.prop {
+  display: inline-flex;
+  align-items: center;
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 999px;
+  white-space: nowrap;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 16px;
+  letter-spacing: -0.01em;
+  box-shadow: var(--shadow-lg);
+}
+
+.prop_plain { background: #fff; color: var(--ink); }
+.prop_ink { background: var(--ink); color: #fff; }
+.prop_up { background: var(--green); color: var(--ink); }
+.prop_down { background: #ff2d6f; color: #fff; }
+
+.propTile {
+  box-shadow: var(--shadow-lg);
+  border-radius: 30%;
+}
+
+.propAvatar {
+  display: block;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 0 4px #fff, var(--shadow-lg);
+}
+
+.propSandwich {
+  display: block;
+  width: 120px;
+  height: auto;
+  filter: drop-shadow(0 18px 18px rgba(120, 70, 20, 0.25));
+}
+
+.propCoin {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff6b0, #f6c451 55%, #d99a12);
+  color: #8a5a00;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 28px;
+  box-shadow: inset 0 -4px 0 rgba(0, 0, 0, 0.12), var(--shadow-lg);
+}
+
+@media (max-width: 960px) {
+  /* the phone shrinks on small screens, so pull props in and drop the far layer */
+  .worldFar { display: none; }
+  /* the phone fills the width here, so props hug its edges instead of floating beside it */
+  .worldProp { scale: 0.78; left: calc(clamp(4, var(--px), 96) * 1%); }
+}
+
+@media (max-width: 560px) {
+  .worldProp { scale: 0.62; }
+}
+
+@media (min-width: 961px) {
+  /* room for props on the right of the pinned phone */
+  .world { margin-right: clamp(40px, 6vw, 110px); }
+}
+
+/* ───────── hero: fill the first screen ─────────
+ * The floating sources and quotes used to live under the CTAs, below the fold, so the
+ * first screen was a headline on blank paper. They now flank the headline from the top,
+ * with a few Duolingo-style props between them, and the phone peeks up from the bottom.
+ */
+
+.hero { padding-top: 120px; }
+
+.heroFloats {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.heroStage {
+  height: 600px;
+  margin-top: 56px;
+}
+
+.fTweet { left: 3%; top: 132px; }
+.fYoutube { left: 6%; top: 400px; }
+.fSubstack { left: 13%; top: 640px; }
+.fQuoteA { right: 3%; top: 120px; }
+.fQuoteB { right: 8%; top: 262px; }
+.fQuoteC { right: 2.5%; top: 404px; }
+.fToast { right: 9%; top: 600px; }
+
+.pSandwich { left: 24%; top: 760px; }
+.pTileA { left: 24%; top: 70px; }
+.pTileB { right: 23%; top: 560px; }
+.pTileC { right: 26%; top: 64px; }
+.pCoin { right: 25%; top: 780px; }
+
+.pSandwich .floatInner,
+.pTileA .floatInner,
+.pTileB .floatInner,
+.pTileC .floatInner,
+.pCoin .floatInner { animation: bob 6s ease-in-out infinite; }
+
+.pTileA .floatInner { animation-delay: -1.5s; }
+.pTileB .floatInner { animation-delay: -3s; }
+.pTileC .floatInner { animation-delay: -4.5s; }
+.pCoin .floatInner { animation-delay: -2.2s; }
+
+.heroSandwich {
+  display: block;
+  width: 150px;
+  height: auto;
+  transform: rotate(-14deg);
+  filter: drop-shadow(0 20px 20px rgba(120, 70, 20, 0.25));
+}
+
+.heroTile {
+  box-shadow: var(--shadow-lg);
+  transform: rotate(-10deg);
+}
+
+.pTileB .heroTile { transform: rotate(12deg); }
+.pTileC .heroTile { transform: rotate(8deg); opacity: 0.85; }
+
+.heroCoin {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff6b0, #f6c451 55%, #d99a12);
+  color: #8a5a00;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 26px;
+  box-shadow: inset 0 -4px 0 rgba(0, 0, 0, 0.12), var(--shadow-lg);
+  transform: rotate(14deg);
+}
+
+/* the headline needs the middle; narrower screens get fewer, smaller flankers */
+@media (max-width: 1320px) {
+  .heroFloats .float { scale: 0.86; }
+  .fTweet { left: 1%; }
+  .fYoutube { left: 2%; }
+  .fQuoteA { right: 1%; }
+  .fQuoteB { right: 3%; }
+  .fQuoteC { right: 0.5%; }
+  .pTileA { left: 20%; }
+  .pTileC { right: 20%; }
+}
+
+@media (max-width: 1180px) {
+  .fSubstack,
+  .fQuoteC,
+  .pTileB { display: none; }
+}
+
+@media (max-width: 960px) {
+  .heroFloats .float { scale: 0.72; }
+  .fTweet,
+  .fYoutube,
+  .fQuoteB,
+  .fToast,
+  .pSandwich,
+  .pCoin { display: none; }
+  .fQuoteA { right: auto; left: 50%; top: auto; bottom: 120px; margin-left: -330px; }
+  .pTileA { left: 4%; top: 80px; }
+  .pTileC { right: 4%; top: 72px; }
+}
+
+@media (max-width: 640px) {
+  .hero { padding-top: 96px; }
+  .fQuoteA { display: none; }
+  .heroFloats .float { scale: 0.6; }
+  .pTileA { left: 2%; top: 40px; }
+  .pTileC { right: 2%; top: 36px; }
+}
+
+/* keep the third quote clear of the widest headline line ("Now you can buy it.") */
+.fQuoteC { top: 486px; }
+.fToast { top: 660px; }
+.pTileB { top: 610px; }
+
+/* ───────── hero → manifesto: Soar's framed hero ─────────
+ * The shell is the manifesto's colour. Leaving the hero, the paper card scales into a
+ * rounded frame over it, so the dark section arrives as a reveal instead of a hard cut.
+ */
+
+.heroShell {
+  background: #0f0f0e;
+}
+
+.hero {
+  background: var(--paper);
+  transform-origin: 50% 85%;
+  will-change: transform;
+}
+
+.heroDim {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  background: #0f0f0e;
+  pointer-events: none;
+}
+
+/* ───────── hero: the posts are buttons that load the phone ───────── */
+
+.srcBtn,
+.srcBtnOn {
+  position: relative;
+  display: block;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  pointer-events: auto;
+  border-radius: 24px;
+  transition: transform 220ms var(--ease-out), filter 220ms ease;
+}
+
+.srcBtn:hover { transform: translateY(-3px) scale(1.02); }
+.srcBtn:active,
+.srcBtnOn:active { transform: scale(0.97); }
+
+.srcBtn { filter: saturate(0.85); }
+
+.srcBtnOn > :first-child {
+  box-shadow: 0 0 0 3px var(--green), var(--shadow-lg);
+}
+
+.srcCooking {
+  position: absolute;
+  right: 14px;
+  bottom: -14px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: var(--shadow-md);
+}
+
+.tapHint {
+  position: absolute;
+  left: 4%;
+  top: 96px;
+  z-index: 5;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: var(--green);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: var(--shadow-md);
+  animation: hintBob 1.8s ease-in-out infinite;
+}
+
+.tapHint::after {
+  content: "";
+  position: absolute;
+  left: 22px;
+  bottom: -5px;
+  width: 10px;
+  height: 10px;
+  background: var(--green);
+  transform: rotate(45deg);
+}
+
+@keyframes hintBob {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -4px; }
+}
+
+.srcPills {
+  display: none;
+}
+
+/* ───────── hero phone: interactive ───────── */
+
+.phoneContent {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.phonePnlScrub {
+  font-variant-numeric: tabular-nums;
+}
+
+.phoneChart {
+  cursor: crosshair;
+  touch-action: pan-y;
+}
+
+.phoneRange button {
+  position: relative;
+  padding: 4px 12px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-3);
+  cursor: pointer;
+  transition: color 150ms ease;
+}
+
+.phoneRange button:hover { color: var(--ink); }
+
+.phoneRange button span { position: relative; }
+
+.phoneRange .phoneRangeOn {
+  background: none;
+  color: var(--green-ink);
+}
+
+.phoneRangePill {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: #f0fdea;
+}
+
+.phoneLegs li {
+  border-radius: 10px;
+  transition: background-color 150ms ease;
+}
+
+.phoneLegs li:hover { background: #f6f6f3; }
+
+.phoneBuyWrap {
+  position: relative;
+  margin-top: auto;
+}
+
+.phoneBuy,
+.phoneBuyDone {
+  width: 100%;
+  border: 0;
+  font: inherit;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.phoneBuy:hover { filter: brightness(1.04); }
+
+.phoneBuyDone {
+  height: 50px;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  background: var(--ink);
+  color: var(--green);
+}
+
+.phoneBoot {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  border-radius: inherit;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.75)),
+    repeating-linear-gradient(180deg, transparent 0 46px, rgba(11, 11, 12, 0.05) 46px 64px);
+  backdrop-filter: blur(6px);
+}
+
+.phoneBoot img {
+  width: 72px;
+  height: auto;
+  animation: bootPulse 1.1s ease-in-out infinite;
+}
+
+@keyframes bootPulse {
+  0%, 100% { transform: scale(1); opacity: 0.9; }
+  50% { transform: scale(1.06); opacity: 1; }
+}
+
+.phoneScreen { position: relative; }
+
+.burst {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  pointer-events: none;
+}
+
+.burst i {
+  position: absolute;
+  font-style: normal;
+  font-size: 20px;
+  translate: -50% -50%;
+}
+
+@media (max-width: 1179px) {
+  .tapHint { display: none; }
+
+  .srcPills {
+    position: absolute;
+    left: 50%;
+    top: -56px;
+    z-index: 5;
+    translate: -50% 0;
+    display: flex;
+    gap: 6px;
+    padding: 4px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.85);
+    box-shadow: var(--shadow-md);
+    backdrop-filter: blur(12px);
+  }
+
+  .srcPill,
+  .srcPillOn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 34px;
+    padding: 0 12px 0 8px;
+    border: 0;
+    border-radius: 999px;
+    background: none;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-2);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .srcPillOn {
+    background: var(--ink);
+    color: #fff;
+  }
+
+  .heroStage { margin-top: 96px; }
+}
+
+.phonePnlNum { position: relative; display: inline-block; }
+
+.phonePnlScrub {
+  position: absolute;
+  left: 0;
+  top: 0;
+  white-space: nowrap;
+}
+
+/* The phone screen is a fixed-height column. Only the space above the buy button may
+ * give; the header, chart and legs keep their size, so the chart can't collapse to 0. */
+.phoneContent > * { flex-shrink: 0; }
+.phoneHead,
+.phoneLegsWrap { min-height: 0; }
+.phoneChart { flex: none; height: 96px; }
+.phoneThesis {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ───────── hero phone: the app's sandwich detail, 1:1 with the real screen ───────── */
+
+.phoneScreen { padding: 0 !important; }
+
+.app {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 14px 16px 0;
+  overflow: hidden;
+  background: #fff;
+  border-radius: inherit;
+}
+
+.app > * { flex-shrink: 0; }
+
+.appStatus {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2px 10px 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.appNav {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: 38px 1fr 38px;
+  align-items: center;
+  gap: 8px;
+}
+
+.appRound {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #f1f1f1;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.appRound:last-child { font-size: 12px; letter-spacing: 1px; }
+
+.appUser {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--display);
+  font-size: 17px;
+  letter-spacing: -0.02em;
+}
+
+.appUser img { border-radius: 50%; object-fit: cover; }
+
+.appThesis {
+  margin-top: 14px !important;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.appWhen {
+  display: block;
+  margin-top: 4px;
+  font-size: 12.5px;
+  color: var(--ink-3);
+  letter-spacing: 0.02em;
+}
+
+.appActions {
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-right: 6px;
+  color: #3a3a3c;
+}
+
+.appActions button,
+.appActions > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 600;
+  font-size: 14px;
+  color: inherit;
+  cursor: pointer;
+}
+
+.appActions > span { cursor: default; }
+
+.appActions .appLiked { color: #ff2d55; }
+.appActions .appSaved { color: var(--ink); }
+
+.appChart {
+  display: block;
+  width: calc(100% + 8px);
+  height: 110px;
+  margin: 10px -4px 0;
+  cursor: crosshair;
+  touch-action: pan-y;
+  overflow: visible;
+}
+
+.appLive { animation: appLive 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+
+@keyframes appLive {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.35); }
+}
+
+.appAxis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--ink-3);
+  letter-spacing: 0.02em;
+}
+
+.appRange {
+  margin-top: 8px;
+  display: flex;
+  justify-content: center;
+  gap: 26px;
+}
+
+.appRange button {
+  padding: 4px 2px;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-family: var(--display);
+  font-size: 14px;
+  color: var(--ink-3);
+  cursor: pointer;
+  transition: color 150ms ease;
+}
+
+.appRange button:hover { color: var(--ink-2); }
+.appRange .appRangeOn { color: var(--ink); }
+
+.appSplit {
+  margin-top: 12px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.appSplit b {
+  font-family: var(--display);
+  font-size: 22px;
+  letter-spacing: -0.03em;
+}
+
+.appSplit b span { color: var(--ink-3); }
+
+.appPnl {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 22px;
+  letter-spacing: -0.03em;
+}
+
+.appLegs {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0 0 90px;
+  display: grid;
+  gap: 2px;
+}
+
+.appLegs li {
+  display: grid;
+  grid-template-columns: 38px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 0;
+}
+
+.appLegs li > div { display: grid; line-height: 1.2; }
+.appLegs b { font-family: var(--display); font-size: 15px; letter-spacing: -0.01em; }
+.appLegs li > div:nth-child(2) span { font-size: 12px; font-weight: 600; color: var(--ink-3); }
+
+.appLegPrice { justify-items: end; }
+.appLegPrice span { font-size: 12px; font-weight: 700; }
+
+.appLegLogo { border-radius: 50% !important; }
+
+.appBuy {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 18px;
+  height: 52px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #7fd6ff, #4bb9f2);
+  color: #fff;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 20px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  box-shadow: 0 10px 24px -8px rgba(40, 150, 230, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.appBuy::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.45) 50%, transparent 70%) no-repeat -120% 0 / 60% 100%;
+  animation: appShine 3.2s ease-in-out infinite;
+}
+
+@keyframes appShine {
+  0%, 60% { background-position: -120% 0; }
+  100% { background-position: 220% 0; }
+}
+
+/* ───────── buy sheet (the app's keypad sheet) ───────── */
+
+.sheetDim {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  background: rgba(11, 11, 12, 0.32);
+  border-radius: inherit;
+}
+
+.buySheet {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  bottom: 6px;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 10px 16px 16px;
+  border-radius: 34px;
+  background: #fff;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.18);
+}
+
+.sheetGrab {
+  align-self: center;
+  width: 38px;
+  height: 5px;
+  border-radius: 5px;
+  background: rgba(11, 11, 12, 0.15);
+}
+
+.sheetAmount,
+.sheetAmountOn {
+  margin: 14px 0 12px;
+  text-align: center;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 50px;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+.sheetAmount { color: #d6d6d6; }
+.sheetAmountOn { color: var(--ink); }
+
+.sheetPost {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 18px;
+  background: #f1f1f3;
+}
+
+.sheetPost img { border-radius: 50%; object-fit: cover; }
+
+.sheetPost b {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+}
+
+.sheetPost p {
+  margin-top: 2px !important;
+  font-size: 13px;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.sheetPost span {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1d9bf0;
+}
+
+.keypad {
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.keypad button {
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 14px;
+  background: none;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 24px;
+  color: #2c2c2e;
+  cursor: pointer;
+}
+
+.sheetAvail {
+  margin-top: 4px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #3a3a3c;
+}
+
+.slide {
+  position: relative;
+  margin-top: 10px;
+  height: 60px;
+  border-radius: 20px;
+  background: #ecfbe6;
+  box-shadow: inset 0 0 0 1px rgba(32, 230, 0, 0.25);
+  overflow: hidden;
+  touch-action: none;
+}
+
+.slideFill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  border-radius: 20px;
+  background: linear-gradient(90deg, #b6f59f, #20e600);
+}
+
+.slideText {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding-left: 40px;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  color: #0b3d00;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.slideThumb {
+  position: absolute;
+  left: 4px;
+  top: 4px;
+  width: 52px;
+  height: 52px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--green);
+  color: #fff;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: grab;
+  box-shadow: 0 4px 12px -4px rgba(15, 138, 0, 0.6);
+  touch-action: none;
+}
+
+.slideThumb:active { cursor: grabbing; }
+
+.slideOff { background: #f3fbf0; box-shadow: inset 0 0 0 1px rgba(32, 230, 0, 0.12); }
+.slideOff .slideThumb { background: #b9f0a8; box-shadow: none; cursor: default; }
+.slideOff .slideText { color: #c9f2bb; letter-spacing: 0.1em; font-size: 20px; padding-left: 0; }
+
+.slideDone .slideText { color: #0b3d00; padding-left: 0; }
+.slideDone .slideFill { width: 100% !important; }
+
+/* an idle thumb nudges right to show it slides */
+.slide:not(.slideOff):not(.slideDone) .slideThumb {
+  animation: slideNudge 1.8s ease-in-out infinite;
+}
+
+@keyframes slideNudge {
+  0%, 60%, 100% { translate: 0 0; }
+  75% { translate: 10px 0; }
+}
+
+.buySheet .burst { top: auto; bottom: 46px; }
+
+.appUserSlot,
+.appHeadSlot,
+.appLegsSlot { min-width: 0; }
+
+.slide .slideThumb:active { animation: none; }
+
+/* ───────── slide to buy: bread-mobile's SlideToConfirm, in its green ───────── */
+
+.slideThumb {
+  display: grid;
+  place-items: center;
+  background: #35f046;
+  color: #fff;
+}
+
+.slideFill { background: linear-gradient(90deg, #b9fbbf, #35f046); }
+
+.slideBusy .slideFill { width: 100% !important; transition: width 200ms ease; }
+.slideBusy .slideText { padding-left: 0; color: #fff; gap: 8px; display: flex; justify-content: center; align-items: center; }
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2.5px solid rgba(255, 255, 255, 0.45);
+  border-top-color: #fff;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ───────── success: bread-mobile's BuySuccessSheet inside the hero phone ───────── */
+
+.success {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  overflow: hidden;
+  border-radius: inherit;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+.successBurst {
+  position: absolute;
+  z-index: 0;
+  display: block;
+}
+
+.successCoin {
+  border-radius: 50% !important;
+  box-shadow: 0 6px 16px -6px rgba(15, 23, 42, 0.3);
+}
+
+.successHero {
+  position: relative;
+  z-index: 2;
+  height: 160px;
+  margin-top: 54px;
+  display: grid;
+  place-items: center;
+}
+
+.successHeroCoin {
+  position: absolute;
+  display: block;
+  padding: 3px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 12px 28px -10px rgba(15, 23, 42, 0.45);
+}
+
+.successCopy {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  justify-items: center;
+  padding: 0 18px;
+  text-align: center;
+}
+
+.successVerb {
+  display: grid;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 19px;
+  color: #64748b;
+}
+
+.successVerb > span { grid-area: 1 / 1; }
+
+.successAmount {
+  margin-top: 2px;
+  font-family: var(--font-rubik-one), "Rubik Mono One", var(--display);
+  font-weight: 400;
+  font-size: 46px;
+  letter-spacing: -0.06em;
+  line-height: 1.05;
+  color: var(--ink);
+}
+
+.successPill {
+  margin-top: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px 4px 4px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 14px;
+}
+
+.successPost {
+  margin-top: 14px;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.06), 0 10px 24px -14px rgba(15, 23, 42, 0.3);
+  text-align: left;
+}
+
+.successPostHead {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.successPostHead img { border-radius: 50%; object-fit: cover; }
+
+.successPost p {
+  margin-top: 6px !important;
+  font-size: 13px;
+  line-height: 1.35;
+  color: #334155;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.successBy {
+  margin-top: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.successActions {
+  position: relative;
+  z-index: 2;
+  margin-top: auto;
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 0 16px 18px;
+}
+
+.successShareLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.successShare {
+  display: flex;
+  gap: 26px;
+  align-items: center;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.successShare > span {
+  display: grid;
+  place-items: center;
+  min-width: 24px;
+}
+
+.successIg {
+  font-size: 22px;
+  background: linear-gradient(45deg, #feda75, #fa7e1e, #d62976, #962fbf);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.successClose {
+  width: 100%;
+  height: 50px;
+  margin-top: 4px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.06);
+  font: inherit;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 17px;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background-color 150ms ease, transform 140ms ease;
+}
+
+.successClose:hover { background: rgba(15, 23, 42, 0.1); }
+.successClose:active { transform: scale(0.97); }
+
+.successHero { margin-top: 70px; height: 150px; }
+.successAmount { letter-spacing: -0.09em; }
+
+/* ───────── chart: live ping ───────── */
+
+.appPing {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: appPing 1.8s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+@keyframes appPing {
+  0% { transform: scale(1); opacity: 0.55; }
+  100% { transform: scale(3.2); opacity: 0; }
+}
+
+/* ───────── nav user: small and quiet ───────── */
+
+.appUser {
+  justify-content: center;
+  gap: 5px;
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: -0.01em;
+}
+
+.appUser b { font-weight: 600; }
+
+/* ───────── the idea card (detail, sheet, receipt) ───────── */
+
+.idea {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: #f4f4f6;
+  text-align: left;
+}
+
+.ideaHead {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  min-width: 0;
+}
+
+.ideaHead img { border-radius: 50%; object-fit: cover; }
+.ideaHead b { white-space: nowrap; }
+.ideaHead span { color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ideaMark { margin-left: auto; }
+
+.ideaText {
+  margin-top: 5px !important;
+  font-size: 12.5px;
+  line-height: 1.38;
+  color: #334155;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ideaCompact .ideaText { -webkit-line-clamp: 2; }
+
+.ideaSub { background: #fff4ec; }
+
+.ideaYt {
+  display: grid;
+  grid-template-columns: 104px 1fr;
+  gap: 10px;
+  align-items: center;
+  background: #0f0f0f;
+  color: #fff;
+}
+
+.ytShot {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: 9px;
+  overflow: hidden;
+}
+
+.ytShot img { object-fit: cover; }
+
+.ytShotPlay {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  width: 28px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  background: #ff0033;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
+}
+
+.ytShotDur {
+  position: absolute;
+  right: 4px;
+  bottom: 5px;
+  padding: 0 4px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.8);
+  font-size: 9.5px;
+  font-weight: 700;
+}
+
+/* watched-up-to bar: the moment the call was made */
+.ytShotBar {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  width: 33%;
+  background: #ff0033;
+}
+
+.ytInfo {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.ytInfo b {
+  font-size: 12.5px;
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ytInfo > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.ytAt {
+  justify-self: start;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(255, 0, 51, 0.18);
+  color: #ff5c7a;
+  font-style: normal;
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+.ideaQuote {
+  grid-column: 1 / -1;
+  font-size: 12.5px;
+  line-height: 1.38;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.sheetIdea .idea { margin-top: 0; }
+
+/* ───────── success: cleaner amount + bottom ───────── */
+
+.successAmount {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 48px;
+  letter-spacing: -0.035em;
+  font-variant-numeric: tabular-nums;
+}
+
+.successIdea {
+  margin-top: 14px;
+  width: 100%;
+}
+
+.successIdea .idea {
+  margin-top: 0;
+  box-shadow: 0 10px 24px -14px rgba(15, 23, 42, 0.35);
+}
+
+.successShare { gap: 14px; }
+
+.successShare > span {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+
+.shareX { background: #0f0f0f; color: #fff; }
+.shareIg { background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fd5949 45%, #d6249f 60%, #285aeb 90%); }
+.shareMore { background: #f1f5f9; color: #0f172a; }
+
+/* YouTube idea card: light, like the X and Substack cards */
+.ideaYt {
+  background: #f4f4f6;
+  color: var(--ink);
+}
+
+.ytInfo > span { color: var(--ink-3); }
+
+.ytAt {
+  background: rgba(255, 0, 51, 0.1);
+  color: #e0002a;
+}
+
+.ideaYt .ideaQuote { color: #334155; }
+
+/* YouTube idea card: no fill, no border, just a soft shadow */
+.ideaYt {
+  background: #fff;
+  border: 0;
+  box-shadow: 0 8px 24px -10px rgba(15, 23, 42, 0.28), 0 2px 6px rgba(15, 23, 42, 0.06);
+}
+
+/* ───────── perp idea: long + leverage (bread-mobile's Phoenix order pad) ───────── */
+
+.appLongPill {
+  margin-left: 6px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(53, 240, 70, 0.16);
+  color: #12a01f !important;
+  font-size: 13px;
+  letter-spacing: 0;
+  vertical-align: 3px;
+}
+
+.appLong {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 18px;
+  height: 52px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #5ef56c, #35f046);
+  color: #fff;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 20px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  box-shadow: 0 10px 24px -8px rgba(53, 200, 70, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.perpHead {
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: 34px 1fr auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.perpHead > div { display: grid; line-height: 1.2; }
+.perpHead b { font-family: var(--display); font-size: 15px; }
+.perpHead span { font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+.perpMark { justify-items: end; }
+.perpMark span { font-weight: 700; }
+
+.buySheet .perpHead + .sheetAmount,
+.buySheet .perpHead + .sheetAmountOn { margin: 8px 0 2px; font-size: 44px; }
+
+.perpSize {
+  text-align: center;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-3);
+}
+
+.perpSize b { color: var(--ink); }
+
+.perpLiq {
+  margin-top: 2px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-3);
+}
+
+.perpLiq b { color: #ff1f4b; }
+
+/* the carousel leverage ruler sits between the size and the risk row, as in the app */
+.perpRuler {
+  margin: 8px -4px 0;
+}
+
+.perpRisk {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2px;
+}
+
+.perpRisk .perpLiq { margin: 0; }
+
+.perpSlTp {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #1fb832;
+}
+
+/* the perp ticket carries more, so its keypad is a touch tighter */
+.perpHead ~ .keypad button { height: 38px; }
+
+/* hero: "buy it." in the app's green instead of a highlighter block */
+.heroGreen { color: #35f046; }
+
+/* ───────── hero: one screen, phone included ─────────
+ * The centred stack put the phone below the fold. On desktop the hero is now three
+ * zones that all fit in the first screen: copy on the left, the live phone next to it,
+ * and the posts that load it stacked on the right. --ps scales the phone to the
+ * viewport height so it never spills past the fold.
+ */
+
+@media (min-width: 961px) {
+  .hero {
+    --ps: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) calc(320px * var(--ps));
+    column-gap: 56px;
+    align-items: center;
+    /* tracks always start at the left padding, never centred past the edge */
+    justify-content: start;
+    justify-items: start;
+    width: 100%;
+    max-width: 100vw;
+    min-height: 100svh;
+    padding: 96px 5vw 40px;
+  }
+
+  .heroCopy {
+    grid-column: 1;
+    grid-row: 1;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  /* sized from the copy column itself, so the longest line can never spill out of it */
+  .heroCopy {
+    container-type: inline-size;
+    min-width: 0;
+    justify-self: stretch;
+    width: 100%;
+  }
+  .heroTitle { font-size: clamp(32px, min(11.6cqi, 4.8vw), 84px); }
+  .heroSub { max-width: min(480px, 100%); }
+  .lineMask { padding-left: 0; white-space: nowrap; }
+  .heroSub { max-width: 480px; }
+  .heroCtas { justify-content: flex-start; }
+
+  .heroStage {
+    grid-column: 2;
+    grid-row: 1;
+    width: calc(320px * var(--ps));
+    height: calc(660px * var(--ps));
+    margin: 0;
+  }
+
+  .phoneWrap {
+    left: 0;
+    margin-left: 0;
+  }
+
+  .phone {
+    transform: scale(var(--ps));
+    transform-origin: top left;
+  }
+
+  /* no room for the flanking cards yet: the pills pick the post, under the phone */
+  .fTweet,
+  .fYoutube,
+  .fSubstack,
+  .fQuoteA,
+  .fQuoteB,
+  .fQuoteC,
+  .fToast,
+  .pTileB,
+  .pCoin { display: none; }
+
+  .srcPills { top: auto; bottom: -52px; }
+  .heroStage { margin-bottom: 52px; }
+
+  .heroFloats .float { scale: 0.8; }
+  .pSandwich { left: 1%; top: auto; bottom: 4%; }
+  .pTileA { left: auto; right: calc(5vw + 320px * var(--ps) + 8px); top: 13%; }
+  .pTileC { right: 2%; top: 9%; }
+}
+
+@media (min-width: 1180px) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr) calc(320px * var(--ps)) 300px;
+    column-gap: 48px;
+  }
+
+  .srcPills { display: none; }
+  .heroStage { margin-bottom: 0; }
+
+  .fTweet,
+  .fYoutube,
+  .fSubstack,
+  .fToast,
+  .pCoin { display: block; }
+
+  .heroFloats .float { scale: 1; }
+  .fTweet { left: auto; right: 5vw; top: 13%; }
+  .fYoutube { left: auto; right: calc(5vw + 24px); top: 39%; }
+  .fSubstack { left: auto; right: calc(5vw - 6px); top: 69%; }
+  .fToast { right: calc(5vw + 36px); top: 84%; }
+  .tapHint { left: auto; right: calc(5vw + 168px); top: calc(13% - 38px); }
+
+  .pTileA { right: calc(5vw + 348px + 320px * var(--ps)); top: 12%; }
+  .pTileC { right: calc(5vw + 316px); top: 7%; }
+  .pCoin { left: auto; right: calc(5vw + 300px + 320px * var(--ps)); top: 84%; }
+  .pSandwich { left: 1%; bottom: 3%; }
+}
+
+@media (min-width: 1180px) and (max-width: 1320px) {
+  .hero { grid-template-columns: minmax(0, 1fr) calc(320px * var(--ps)) 260px; }
+  .heroFloats .float { scale: 0.86; }
+  .fTweet { right: calc(5vw - 20px); }
+  .fYoutube { right: calc(5vw - 6px); }
+  .fSubstack { right: calc(5vw - 16px); }
+}
+
+/* shorter laptop screens: shrink the phone rather than push it under the fold */
+@media (min-width: 961px) and (max-height: 900px) { .hero { --ps: 0.9; } }
+@media (min-width: 961px) and (max-height: 820px) { .hero { --ps: 0.82; } }
+@media (min-width: 961px) and (max-height: 740px) { .hero { --ps: 0.74; } }
+@media (min-width: 961px) and (max-height: 660px) { .hero { --ps: 0.66; } }
+@media (min-width: 961px) and (max-width: 1179px) and (max-height: 820px) { .hero { --ps: 0.76; } }
+
+/* phones: tighter copy so the phone rises into the first screen */
+@media (max-width: 640px) {
+  .hero { padding-top: 84px; }
+  .heroTitle { font-size: clamp(34px, 11.2vw, 56px); }
+  .lineMask { white-space: nowrap; }
+  .heroSub {
+    margin-top: 16px !important;
+    font-size: 16px;
+    line-height: 1.45;
+  }
+  .heroCtas {
+    flex-wrap: nowrap;
+    width: 100%;
+    gap: 8px;
+    margin-top: 22px;
+  }
+  .heroCtas > a {
+    flex: 1 1 0;
+    min-width: 0;
+    justify-content: center;
+    padding-inline: 12px;
+    white-space: nowrap;
+  }
+  .heroStage { margin-top: 70px; }
+}
+
+/* ───────── top bar ───────── */
+
+.nav {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 50;
+  height: 68px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 max(20px, 5vw);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, backdrop-filter 0.3s ease;
+}
+
+.navBrand {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 21px;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.navBrand img {
+  border-radius: 9px;
+  box-shadow: 0 1px 2px rgba(11, 11, 12, 0.18);
+}
+
+.navLinks {
+  display: flex;
+  gap: 4px;
+}
+
+.navLinks a {
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--ink-2);
+  text-decoration: none;
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.navLinks a:hover {
+  color: var(--ink);
+  background: rgba(11, 11, 12, 0.05);
+}
+
+.navEnd {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.navCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 40px;
+  padding: 0 16px 0 14px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 0.2s var(--ease-out), box-shadow 0.2s ease;
+}
+
+.navCta svg { width: 15px; height: 15px; }
+.navCta:hover { transform: translateY(-1px); box-shadow: 0 8px 18px -8px rgba(11, 11, 12, 0.55); }
+.navCta:active { transform: scale(0.97); }
+
+@media (max-width: 860px) {
+  .nav { height: 60px; }
+  .navLinks { display: none; }
+}
+
+/* ───────── hero: the sources Bread reads ───────── */
+
+.heroSources {
+  margin-top: 28px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 18px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink-3);
+}
+
+.heroSources > span:first-child {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.heroSource {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--ink-2);
+}
+
+@media (max-width: 960px) {
+  .heroSources { display: none; }
+}
+
+/* make room for the top bar: the props sit clear of it and of the source row */
+@media (min-width: 1180px) {
+  .pTileC { top: 11%; }
+  .fTweet { top: 15%; }
+  .tapHint { top: calc(15% - 38px); }
+  .pSandwich { left: -1.5%; bottom: -5%; }
+}
+
+/* phones: the top bar owns the top edge, so the corner tiles go */
+@media (max-width: 640px) {
+  .pTileA,
+  .pTileC { display: none; }
+  .hero { padding-top: 90px; }
+}
+
+/* ───────── hero: ticker chips instead of bare logo tiles ───────── */
+
+.tickerChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px 6px 6px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 1px 0 rgba(11, 11, 12, 0.04), 0 10px 24px -10px rgba(11, 11, 12, 0.28);
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  transform: rotate(-6deg);
+}
+
+
+.tickerChip b {
+  font-family: var(--display);
+  font-size: 13.5px;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.pTileC .tickerChip { transform: rotate(5deg); }
+
+/* ───────── logo mark: tile + slice ───────── */
+
+.mark {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+}
+
+.markTile {
+  position: absolute;
+  inset: 0;
+  border-radius: 9px;
+  background: linear-gradient(160deg, #3dff3d 0%, #08f808 55%, #05d905 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.1),
+    0 2px 6px -2px rgba(8, 160, 8, 0.6);
+  transform-origin: 50% 100%;
+}
+
+.markSlice {
+  position: relative;
+  width: 25px;
+  height: auto;
+  margin-top: 1px;
+  filter: drop-shadow(0 1.5px 1px rgba(90, 40, 0, 0.3));
+  transform-origin: 50% 70%;
+  will-change: transform;
+}
+
+.markCrumb {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  margin-left: -2px;
+  border-radius: 1.5px;
+  background: #d9862f;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.markCrumb:nth-of-type(2) { width: 3px; height: 3px; background: #f0c27a; }
+
+/* ───────── glossy marks for the ticker chips ───────── */
+
+.glossyTile,
+.glossyCoin {
+  position: relative;
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  color: #fff;
+  isolation: isolate;
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.glossyTile svg,
+.glossyCoin svg {
+  position: relative;
+  z-index: 2;
+  filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.28));
+}
+
+/* the coin's symbol is struck into the face, so it carries a deeper shadow */
+.glossyCoin svg { filter: drop-shadow(0 1px 0 rgba(120, 50, 0, 0.55)) drop-shadow(0 0 1px rgba(120, 50, 0, 0.35)); }
+
+/* a beveled app tile: light from the top left, a darker lip at the bottom */
+.glossyTile {
+  border-radius: 30%;
+  background: linear-gradient(155deg, var(--hi) 0%, var(--mid) 48%, var(--lo) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.18),
+    0 3px 8px -3px var(--lo);
+}
+
+.glossyTile::after {
+  content: "";
+  position: absolute;
+  inset: 1px 1px 52% 1px;
+  border-radius: 30% 30% 45% 45% / 30% 30% 60% 60%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0));
+  z-index: 1;
+}
+
+/* a minted coin: reeded rim, a recessed face, and a highlight across the top */
+.glossyCoin {
+  border-radius: 50%;
+  background:
+    repeating-conic-gradient(from 0deg, rgba(0, 0, 0, 0.1) 0deg 4deg, rgba(255, 255, 255, 0.16) 4deg 8deg),
+    radial-gradient(circle at 32% 26%, var(--hi), var(--mid) 50%, var(--lo));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    inset 0 -1.5px 0 rgba(0, 0, 0, 0.25),
+    0 3px 8px -3px var(--lo);
+}
+
+.glossyCoin::before {
+  content: "";
+  position: absolute;
+  inset: 12%;
+  border-radius: 50%;
+  background: linear-gradient(150deg, var(--hi) 0%, var(--mid) 34%, var(--lo) 100%);
+  box-shadow: inset 0 1.5px 2px rgba(0, 0, 0, 0.3), 0 0.5px 0 rgba(255, 255, 255, 0.55);
+  z-index: 1;
+}
+
+.glossyCoin::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: linear-gradient(120deg, transparent 18%, rgba(255, 255, 255, 0.32) 25%, transparent 32%);
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* hovering a chip spins the coin and tips the tile */
+.tickerChip:hover .glossyCoin { transform: rotateY(360deg); transition-duration: 0.9s; }
+.tickerChip:hover .glossyTile { transform: rotate(-10deg) scale(1.08); }
+
+@media (prefers-reduced-motion: reduce) {
+  .tickerChip:hover .glossyCoin,
+  .tickerChip:hover .glossyTile { transform: none; }
+}
+
+.tickerChip {
+  pointer-events: auto;
+  perspective: 240px;
 }
