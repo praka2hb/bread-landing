@@ -366,8 +366,7 @@ function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.45, duration: 0.7, ease: EASE }}
           >
-            Paste a podcast, a post, a newsletter. Bread finds the trade inside it and turns it
-            into a sandwich: a one‑tap basket of the stocks, perps and markets behind the idea.
+            Paste a post or a podcast. Get a one‑tap basket of the trade inside it.
           </motion.p>
 
           <motion.div
@@ -1513,7 +1512,7 @@ function BuySuccess({
 // It's about turning an idea into a trade, not about speed. A leading * marks the
 // word the paragraph lands on.
 const MANIFESTO =
-  "The best investment ideas live on the internet. A podcast at minute 94. A thread on X. A Substack you saved and never opened. But an idea isn’t a trade. Which companies? How much in each? Where do you even buy them? So the idea stays a *bookmark.";
+  "The best investment ideas live on the internet. But an idea isn’t a trade, so it stays a *bookmark.";
 
 function ManifestoWord({
   word,
@@ -1653,7 +1652,6 @@ function Statement() {
       <motion.h2 style={{ x }}>
         Billions must <span className={styles.highlight}>trade.</span>
       </motion.h2>
-      <p>The internet made financial information free. Bread puts the trade right next to it.</p>
     </section>
   );
 }

@@ -50,11 +50,6 @@ const INTRO = [
     body: "See who called it, where, and how it’s done since.",
   },
   {
-    key: "dm",
-    title: "DM2Buy on X.",
-    body: "DM any post to @sandwichplis and Bread buys the idea behind it.",
-  },
-  {
     key: "alerts",
     title: "Alerts that matter.",
     body: "Big moves, your sandwiches, people you follow.",
@@ -64,42 +59,42 @@ const INTRO = [
 type IntroKey = (typeof INTRO)[number]["key"];
 
 /**
- * Bread's marks for the four cards: solid white glyphs on an ink chip, each with
- * one Bread-green accent. 20px grid, no outlines, no per-icon badges.
+ * Bread's marks for the cards: a two-tone glyph on a soft tile in the page's own
+ * palette (the same lime / sky / pink as the Markets cards). Each glyph is drawn
+ * in its tile's deep tone, with one lighter fill for depth. 20px grid.
  */
 function IntroIcon({ k }: { k: IntroKey }) {
-  const common = { width: 18, height: 18, viewBox: "0 0 20 20", fill: "none", "aria-hidden": true } as const;
-  const INK = "#0b0b0c";
-  const GREEN = "#35f046";
+  const common = { width: 20, height: 20, viewBox: "0 0 20 20", fill: "none", "aria-hidden": true } as const;
   if (k === "sandwich")
-    return (
-      <svg {...common}>
-        <path d="M3.2 8.4C3.2 5.3 6.2 3.2 10 3.2s6.8 2.1 6.8 5.2z" fill="#fff" />
-        <rect x="2.6" y="9.6" width="14.8" height="2.4" rx="1.2" fill={GREEN} />
-        <path d="M3.2 13.2h13.6v.5a2.8 2.8 0 0 1-2.8 2.8H6a2.8 2.8 0 0 1-2.8-2.8z" fill="#fff" />
-      </svg>
-    );
+    return <Image src="/sandwich-cutout.png" alt="" width={26} height={23} className={s.introIconImg} />;
   if (k === "feed")
+    // the tile itself is the blue square; this is the newspaper on it, drawn edge to edge
     return (
-      <svg {...common}>
-        <rect x="3" y="3" width="14" height="8" rx="2.4" fill="#fff" />
-        <path d="M5.4 8.6 8 6.4l1.9 1.4 3-2.6" stroke={INK} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-        <circle cx="14.3" cy="5" r="1.15" fill={GREEN} stroke={INK} strokeWidth="0.6" />
-        <rect x="3" y="13" width="14" height="4" rx="2" fill="#fff" fillOpacity="0.38" />
-      </svg>
-    );
-  if (k === "dm")
-    return (
-      <svg {...common}>
-        <path d="M17.4 2.7 2.7 8.3c-.5.2-.5.9 0 1.1l5.1 2.2 2.2 5.1c.2.5.9.5 1.1 0z" fill="#fff" />
-        <path d="M7.9 11.6 17.4 2.7" stroke={GREEN} strokeWidth="1.5" strokeLinecap="round" />
+      <svg width="32" height="32" viewBox="0 0 320 320" fill="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="feedFlap" x1="36" y1="0" x2="96" y2="0" gradientUnits="userSpaceOnUse">
+            <stop stopColor="#5b95fb" />
+            <stop offset="1" stopColor="#a9d0ff" />
+          </linearGradient>
+          <linearGradient id="feedRoll" x1="0" y1="107" x2="0" y2="265" gradientUnits="userSpaceOnUse">
+            <stop stopColor="#a6ceff" />
+            <stop offset="1" stopColor="#5fabff" />
+          </linearGradient>
+        </defs>
+        <rect x="36" y="107" width="70" height="121" rx="20" fill="url(#feedFlap)" />
+        <path d="M58 107h67v134a24 24 0 0 1-48 0V126a19 19 0 0 0-19-19z" fill="url(#feedRoll)" />
+        <rect x="125" y="53" width="158" height="212" rx="20" fill="#fff" />
+        <rect x="148" y="76" width="112" height="53" rx="9" fill="#9cc8ff" />
+        <rect x="148" y="148" width="63" height="25" rx="7" fill="#9cc8ff" />
       </svg>
     );
   return (
     <svg {...common}>
-      <path d="M10 2.8c-2.9 0-5 2.1-5 5v3.1l-1.3 2.2c-.4.6 0 1.4.8 1.4h11c.8 0 1.2-.8.8-1.4L15 10.9V7.8c0-2.9-2.1-5-5-5z" fill="#fff" />
-      <path d="M8.1 16.1h3.8a1.9 1.9 0 0 1-3.8 0z" fill="#fff" />
-      <circle cx="14.8" cy="5.2" r="3" fill={GREEN} stroke={INK} strokeWidth="1.6" />
+      <path
+        d="M10 2.8c-2.8 0-4.9 2.1-4.9 4.9v2.9l-1.4 2.3c-.4.7.1 1.5.9 1.5h10.8c.8 0 1.3-.8.9-1.5l-1.4-2.3V7.7c0-2.8-2.1-4.9-4.9-4.9z"
+        fill="currentColor"
+      />
+      <path d="M8.1 16.2h3.8a1.9 1.9 0 0 1-3.8 0z" fill="currentColor" fillOpacity="0.5" />
     </svg>
   );
 }
@@ -138,11 +133,10 @@ export function IntroducingBread() {
             <div className={s.introCard}>
               {c.key === "sandwich" && <VignetteSandwich />}
               {c.key === "feed" && <VignetteFeed />}
-              {c.key === "dm" && <VignetteDm />}
               {c.key === "alerts" && <VignetteAlerts />}
             </div>
             <figcaption>
-              <span className={s.introIcon} aria-hidden="true">
+              <span className={`${s.introIcon} ${s[`introIcon_${c.key}`]}`} aria-hidden="true">
                 <IntroIcon k={c.key} />
               </span>
               <span>
@@ -317,63 +311,6 @@ function VignetteFeed() {
         </div>
       </div>
     </div>
-  );
-}
-
-/** DM2Buy, as it looks in X: send a post to @sandwichplis and it buys the idea behind it. */
-function VignetteDm() {
-  return (
-    <PeekPhone>
-      <div className={s.xdm}>
-        <div className={s.xdmHead}>
-          <span className={s.xdmBack}>←</span>
-          <Image src="/landing/sandwichplis.webp" alt="" width={26} height={26} className={s.xdmAvatar} />
-          <b>sandwich maker</b>
-          <span className={s.xdmIcons} aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2" />
-            </svg>
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <rect x="3" y="6" width="13" height="12" rx="2" />
-              <path d="m16 10 5-3v10l-5-3" />
-            </svg>
-          </span>
-        </div>
-
-        <div className={s.xdmThread}>
-          {/* the post you shared into the DM */}
-          <div className={s.xdmShared}>
-            <div className={s.xdmMedia}>
-              <Image src="/landing/yt-karp-jensen.jpg" alt="" fill sizes="160px" />
-            </div>
-            <div className={s.xdmPost}>
-              <span>
-                <Image src="/landing/x-serenity.jpg" alt="" width={14} height={14} />
-                <b>Serenity</b> @aleabitoreddit · 1d
-              </span>
-              <p>🚨 MEMORY IS STILL THE AI BOTTLENECK. $MU $SNDK</p>
-            </div>
-          </div>
-          <span className={s.xdmSent}>Sent</span>
-
-          <span className={s.xdmOnIt}>On it…</span>
-          <div className={s.xdmReply}>
-            <p>AI memory demand is outrunning supply.</p>
-            <p>
-              Bullish <b>$MU</b>
-              <br />
-              <u>breadapp.fun/s/memory-bottleneck</u>
-            </p>
-            <p className={s.xdmBought}>Bought $10 of $MU for you ✓</p>
-          </div>
-        </div>
-
-        <div className={s.xdmComposer} aria-hidden="true">
-          <span className={s.xdmPlus}>+</span>
-          <span className={s.xdmInput}>Message</span>
-        </div>
-      </div>
-    </PeekPhone>
   );
 }
 

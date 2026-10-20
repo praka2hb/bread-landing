@@ -5,7 +5,6 @@ import { useMotionValueEvent, useReducedMotion, useScroll } from "framer-motion"
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import type { BrandKey } from "./brands";
 import { Logo, LogoStack } from "./Logo";
-import { LeverageCarousel } from "./LeverageCarousel";
 import s from "./how.module.css";
 
 /*
@@ -65,7 +64,7 @@ function useClock(running: boolean, duration: number, resetKey: number) {
 type Tag = { logo?: BrandKey; label: string };
 
 type Step = {
-  key: "share" | "dm" | "write" | "trade";
+  key: "share" | "dm" | "write";
   title: string;
   body: string;
   tags: Tag[];
@@ -106,15 +105,6 @@ const STEPS: Step[] = [
     dur: 12,
     still: 10.5,
     chip: { at: 7.6, label: "one sentence", value: "5 assets" },
-  },
-  {
-    key: "trade",
-    title: "Go long or short, up to 10×",
-    body: "A single-stock take trades as a perp. Pick your leverage on the ruler, see your size and liquidation price, then slide to go long.",
-    tags: [{ label: "Perps" }, { label: "Spot" }],
-    dur: 11,
-    still: 8.5,
-    chip: { at: 6.9, label: "tap to trade", value: "5× long" },
   },
 ];
 
@@ -626,154 +616,6 @@ function Verified({ size = 20 }: { size?: number }) {
   );
 }
 
-/* ═════════════════════════ 4 · long or short ═════════════════════════ */
-
-const KEY_PRICES = [52, 55, 50, 46, 48, 42, 40, 44, 38, 36, 40, 46, 52, 48, 56, 62, 59, 67, 74];
-
-/** A believable week of HOOD candles: a slide, a base, then the run. Deterministic, so SSR matches. */
-const CANDLES = (() => {
-  const n = 34;
-  let prev = KEY_PRICES[0];
-  return Array.from({ length: n }, (_, i) => {
-    const x = (i / (n - 1)) * (KEY_PRICES.length - 1);
-    const a = Math.floor(x);
-    const b = Math.min(a + 1, KEY_PRICES.length - 1);
-    const c = KEY_PRICES[a] + (KEY_PRICES[b] - KEY_PRICES[a]) * (x - a) + Math.sin(i * 2.3) * 2.2;
-    const o = prev;
-    prev = c;
-    return {
-      o,
-      c,
-      h: Math.max(o, c) + 1.5 + Math.abs(Math.sin(i * 1.7)) * 2.5,
-      l: Math.min(o, c) - 1.5 - Math.abs(Math.cos(i * 1.3)) * 2.5,
-    };
-  });
-})();
-
-const cy = (v: number) => 300 - ((v - 30) / 56) * 280;
-
-function TradeScene({ t, reduce }: SceneProps) {
-  const tap = t >= 1.9 && t < 2.25;
-  const sheet = t >= 2.2;
-  return (
-    <div className={s.trade}>
-      <Status />
-      <div className={s.tHead}>
-        <span className={s.tBack}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111827" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M15 5l-7 7 7 7" />
-          </svg>
-        </span>
-        <span className={s.tSeg}>
-          <i>Spot</i>
-          <i className={s.tSegOn}>Perp</i>
-        </span>
-      </div>
-      <div className={s.tTitle}>
-        <Logo id="HOOD" size={44} className={s.round} />
-        <span>
-          <b>Robinhood</b>
-          <small>HOOD</small>
-        </span>
-        <span className={s.tPrice}>
-          <b>$139.70</b>
-          <em>+7.20%</em>
-        </span>
-      </div>
-
-      <svg className={s.tChart} viewBox="0 0 390 320" aria-hidden="true">
-        {[60, 130, 200, 270].map((y) => (
-          <line key={y} x1="0" x2="390" y1={y} y2={y} stroke="#e8eef4" strokeWidth="1" />
-        ))}
-        {CANDLES.map((c, i) => {
-          const up = c.c >= c.o;
-          const x = 14 + i * 10.2;
-          const col = up ? "#35f046" : "#ff1f4b";
-          return (
-            <g key={i}>
-              <line x1={x} x2={x} y1={cy(c.h)} y2={cy(c.l)} stroke={col} strokeWidth="1.4" />
-              <rect x={x - 3.2} width="6.4" y={cy(Math.max(c.o, c.c))} height={Math.max(2, Math.abs(cy(c.o) - cy(c.c)))} rx="1" fill={col} />
-            </g>
-          );
-        })}
-        <line x1="0" x2="390" y1={cy(74)} y2={cy(74)} stroke="#10223d" strokeOpacity="0.5" strokeWidth="1" />
-      </svg>
-      <span className={s.tTag}>$139.70</span>
-      <div className={s.tRange}>
-        <span>24H</span>
-        <span className={s.tRangeOn}>7D</span>
-        <span>1M</span>
-        <span>3M</span>
-      </div>
-      <div className={s.tTabs}>
-        <b>Sandwiches</b>
-        <span>Holders</span>
-        <span>About</span>
-      </div>
-
-      <div className={s.tPills}>
-        <span className={`${s.pill} ${s.pillLong} ${tap ? s.pillDown : ""}`}>LONG</span>
-        <span className={`${s.pill} ${s.pillShort}`}>SHORT</span>
-      </div>
-
-      {/* the order ticket */}
-      <div className={`${s.scrim} ${sheet ? s.scrimOn : ""}`} />
-      <div className={`${s.order} ${sheet ? s.orderUp : ""}`}>
-        {sheet && <OrderTicket t={t} reduce={reduce} />}
-      </div>
-
-      <div className={`${s.toast} ${t >= 6.9 ? s.toastOn : ""}`}>
-        <Image src="/logo.png" alt="" width={44} height={44} />
-        <span>
-          <b>You 5× longed $25.00</b>
-          HOOD-PERP · liq $114.55
-        </span>
-      </div>
-      <Home />
-    </div>
-  );
-}
-
-function OrderTicket({ t, reduce }: { t: number; reduce: boolean }) {
-  // the ticket drags its own ruler 1x → 5x; size and liquidation follow it live
-  const [lev, setLev] = useState(reduce ? 5 : 1);
-  const liq = 139.7 * (1 - 0.9 / lev);
-  return (
-    <>
-      <i className={s.grab} />
-      <div className={s.oHead}>
-        <Logo id="HOOD" size={40} className={s.round} />
-        <span>
-          <b>HOOD-PERP</b>
-          <small>$41.2M open interest</small>
-        </span>
-        <span className={s.oMark}>
-          <b>$139.70</b>
-          <em>+7.20%</em>
-        </span>
-      </div>
-      <b className={s.oAmt}>$25</b>
-      <span className={s.oSize}>
-        Leveraged size <b>${(25 * lev).toLocaleString("en-US")}</b>
-      </span>
-      <div className={s.oRuler}>
-        <LeverageCarousel value={lev} max={10} onChange={setLev} height={84} slot={66} demoTo={reduce ? undefined : 5} demoDelay={0.6} />
-      </div>
-      <div className={s.oRisk}>
-        <span>
-          Liq. <b>${liq.toFixed(2)}</b>
-        </span>
-        <em>Add SL/TP</em>
-      </div>
-      <div className={`${s.oSlide} ${t >= 5.2 ? s.oSlideGo : ""}`}>
-        <i className={s.oFill} />
-        <span className={s.oThumb}>›</span>
-        <span className={s.oText}>SLIDE TO LONG $25.00</span>
-      </div>
-    </>
-  );
-}
-
 /* ═════════════════════════ stage ═════════════════════════ */
 
 function Scene({ i, t, reduce }: { i: number } & SceneProps) {
@@ -783,7 +625,6 @@ function Scene({ i, t, reduce }: { i: number } & SceneProps) {
       {i === 0 && <ShareScene {...props} />}
       {i === 1 && <DmScene {...props} />}
       {i === 2 && <WriteScene {...props} />}
-      {i === 3 && <TradeScene {...props} />}
     </div>
   );
 }
@@ -905,7 +746,7 @@ export function HowBread() {
     <section className={s.how} id="how">
       <div className={s.head}>
         <h2>How Bread works</h2>
-        <p>Four ways an idea becomes a position. Same sandwich every time.</p>
+        <p>Three ways an idea becomes a position. Same sandwich every time.</p>
       </div>
       <Pinned reduce={reduce} still={still} />
       <div className={s.stacked}>
