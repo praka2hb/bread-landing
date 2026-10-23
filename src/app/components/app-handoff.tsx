@@ -26,10 +26,27 @@ const FALLBACK_DELAY_MS = 2500;
  * and left Safari on TestFlight while the app was open.)
  *
  * Runs once per link per tab: coming Back from TestFlight must show the page,
- * not bounce again. Desktop and Android keep the web page (there is no app).
+ * not bounce again. Desktop keeps the web page.
+ *
+ * Android: a verified App Link opens the app before this page loads, but X and
+ * other in-app browsers never hand App Links off. So we fire an intent:// URL
+ * for the bread:// link; Chrome opens Bread if it's installed, otherwise it
+ * loads `browser_fallback_url` — this same page — instead of the Play Store.
  */
 export function AppHandoff({ appLink }: { appLink: string }) {
   useEffect(() => {
+    if (/Android/i.test(navigator.userAgent)) {
+      const key = `bread:handoff:${appLink}`;
+      try {
+        if (sessionStorage.getItem(key)) return;
+        sessionStorage.setItem(key, "1");
+      } catch {
+        // Storage blocked: still hand off once.
+      }
+      window.location.href = toAndroidIntent(appLink, window.location.href);
+      return;
+    }
+
     const isIOS =
       /iPhone|iPad|iPod/.test(navigator.userAgent) ||
       // iPadOS reports itself as a Mac.
@@ -72,4 +89,15 @@ export function AppHandoff({ appLink }: { appLink: string }) {
   }, [appLink]);
 
   return null;
+}
+
+const ANDROID_PACKAGE = "com.breadapp.fun";
+
+// bread://sandwich?x=1 → intent://sandwich?x=1#Intent;scheme=bread;package=…;end
+function toAndroidIntent(appLink: string, fallbackUrl: string): string {
+  const [scheme, rest] = appLink.split("://");
+  return (
+    `intent://${rest}#Intent;scheme=${scheme};package=${ANDROID_PACKAGE};` +
+    `S.browser_fallback_url=${encodeURIComponent(fallbackUrl)};end`
+  );
 }

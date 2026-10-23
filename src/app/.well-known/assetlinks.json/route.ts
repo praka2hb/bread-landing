@@ -8,13 +8,23 @@
 // the Play app-signing key AND the separate Solana dApp Store key.
 const PACKAGE_NAME = "com.breadapp.fun";
 
+// Signing certs are public, so the known ones live here: an unset env var used
+// to publish `[]`, and every App Link fell back to the website.
+const KNOWN_FINGERPRINTS = [
+  // EAS keystore (current sideloaded / dApp Store build).
+  "3E:F9:B6:DC:6F:E9:48:EA:45:6B:5A:FD:03:DF:03:23:3D:D1:86:0A:18:A5:DE:0D:BD:95:C3:AD:BD:15:C7:5B",
+];
+
 export const dynamic = "force-static";
 
 export function GET() {
-  const fingerprints = (process.env.ANDROID_SHA256_CERT_FINGERPRINTS ?? "")
-    .split(",")
-    .map((value) => value.trim().toUpperCase())
-    .filter((value) => /^([0-9A-F]{2}:){31}[0-9A-F]{2}$/.test(value));
+  const fingerprints = [
+    ...new Set(
+      [...KNOWN_FINGERPRINTS, ...(process.env.ANDROID_SHA256_CERT_FINGERPRINTS ?? "").split(",")]
+        .map((value) => value.trim().toUpperCase())
+        .filter((value) => /^([0-9A-F]{2}:){31}[0-9A-F]{2}$/.test(value)),
+    ),
+  ];
 
   const statements = fingerprints.length
     ? [
