@@ -42,7 +42,7 @@ const INTRO = [
   {
     key: "sandwich",
     title: "Sandwiches, first.",
-    body: "Any post, podcast or take becomes a basket you can buy.",
+    body: "Any post, podcast or take becomes the trade behind it. One asset or a few, long or short.",
   },
   {
     key: "feed",

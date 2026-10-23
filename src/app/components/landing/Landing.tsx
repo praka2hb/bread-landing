@@ -10,7 +10,6 @@ import {
   useAnimate,
   useScroll,
   useTransform,
-  type MotionValue,
 } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { TESTFLIGHT_URL } from "@/lib/sandwiches";
@@ -366,7 +365,7 @@ function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.45, duration: 0.7, ease: EASE }}
           >
-            Paste a post or a podcast. Get a one‑tap basket of the trade inside it.
+            Paste a post or a podcast. Bread finds the play, long or short. One tap and you’re in.
           </motion.p>
 
           <motion.div
@@ -1512,42 +1511,66 @@ function BuySuccess({
 // It's about turning an idea into a trade, not about speed. A leading * marks the
 // word the paragraph lands on.
 const MANIFESTO =
-  "The best investment ideas live on the internet. But an idea isn’t a trade, so it stays a *bookmark.";
+  "You’ve seen a hundred great calls this year. A podcast at minute 94. A thread at 2am. A Substack you meant to read. You believed most of them. You traded none of them. They’re still sitting in your *bookmarks.";
 
-function ManifestoWord({
-  word,
-  progress,
-  range,
-}: {
-  word: string;
-  progress: MotionValue<number>;
-  range: [number, number];
-}) {
-  const opacity = useTransform(progress, range, [0.18, 1]);
-  const lands = word.startsWith("*");
-  return (
-    <motion.span style={{ opacity }} className={lands ? styles.manifestoLand : undefined}>
-      {lands ? word.slice(1) : word}{" "}
-    </motion.span>
-  );
+/**
+ * How far the reader is through `ref` (0 at its top reaching the viewport top, 1 at
+ * its bottom reaching the viewport bottom), read straight from layout on each
+ * scroll frame. Deliberately not framer's useScroll + per-word useTransform: those
+ * get handed to native scroll timelines, which lit words out of order and froze
+ * them in some browsers. One number, one source of truth, strictly in order.
+ */
+function useSectionProgress(ref: React.RefObject<HTMLElement | null>) {
+  const [p, setP] = useState(0);
+  useEffect(() => {
+    let raf = 0;
+    const read = () => {
+      raf = 0;
+      const el = ref.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      const dist = r.height - window.innerHeight;
+      const next = dist > 0 ? Math.min(1, Math.max(0, -r.top / dist)) : r.top <= 0 ? 1 : 0;
+      setP((prev) => (Math.abs(prev - next) < 0.0005 ? prev : next));
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(read);
+    };
+    read();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [ref]);
+  return p;
 }
+
+/** Words light up in reading order; the last 15% of the scroll is a beat of rest on the full line. */
+const MANIFESTO_SPAN = 0.85;
 
 function Manifesto() {
   const ref = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
+  const reduce = useReducedMotion();
+  const progress = useSectionProgress(ref);
   const words = MANIFESTO.split(" ");
+  // each word gets a window a little wider than its slot, so neighbours overlap and it reads as a sweep
+  const lit = (progress / MANIFESTO_SPAN) * words.length;
   return (
     <section ref={ref} className={styles.manifesto}>
       <div className={styles.manifestoSticky}>
         <p className={styles.manifestoText}>
-          {words.map((w, i) => (
-            <ManifestoWord
-              key={i}
-              word={w}
-              progress={scrollYProgress}
-              range={[(i / words.length) * 0.8, ((i + 1) / words.length) * 0.8]}
-            />
-          ))}
+          {words.map((w, i) => {
+            const lands = w.startsWith("*");
+            const k = reduce ? 1 : Math.min(1, Math.max(0, (lit - i) / 1.6));
+            return (
+              <span key={i} style={{ opacity: 0.18 + 0.82 * k }} className={lands ? styles.manifestoLand : undefined}>
+                {lands ? w.slice(1) : w}{" "}
+              </span>
+            );
+          })}
         </p>
       </div>
     </section>
@@ -1578,7 +1601,7 @@ const MARKETS: { title: string; body: string; tone: string; visual: React.ReactN
   },
   {
     title: "Prediction markets",
-    body: "“Will the Fed cut in December?” sits in the same basket as your stocks.",
+    body: "“Will the Fed cut in December?” sits in the same sandwich as your stocks.",
     tone: styles.cardSky,
     visual: (
       <div className={styles.predictViz}>
