@@ -124,10 +124,10 @@ export function Footer() {
       >
         <span>© {new Date().getFullYear()} Bread. All rights reserved.</span>
         <div style={{ display: "flex", gap: 24 }}>
-          <a href="#" style={{ color: "inherit", textDecoration: "none" }}>
+          <a href="/privacy" style={{ color: "inherit", textDecoration: "none" }}>
             Privacy
           </a>
-          <a href="#" style={{ color: "inherit", textDecoration: "none" }}>
+          <a href="/terms" style={{ color: "inherit", textDecoration: "none" }}>
             Terms
           </a>
           <a href="#" style={{ color: "inherit", textDecoration: "none" }}>
