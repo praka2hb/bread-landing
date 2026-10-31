@@ -7,7 +7,7 @@ import styles from "./legal.module.css";
  * stay reachable at those exact paths.
  */
 
-export const LEGAL_CONTACT_EMAIL = "support@breadapp.fun";
+export const LEGAL_CONTACT_EMAIL = "breadapp.live@gmail.com";
 export const LEGAL_LAST_UPDATED = "October 31, 2026";
 
 export function LegalPage({ title, children }: { title: string; children: ReactNode }) {
