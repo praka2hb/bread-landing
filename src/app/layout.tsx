@@ -1,25 +1,11 @@
 import type { Metadata } from "next";
-import { Geist_Mono, Instrument_Serif, Rubik_Mono_One } from "next/font/google";
+import { Rubik_Mono_One } from "next/font/google";
 import "./globals.css";
 
 const rubikMonoOne = Rubik_Mono_One({
   subsets: ["latin"],
   weight: "400",
   variable: "--font-rubik-one",
-  display: "swap",
-});
-
-const instrumentSerif = Instrument_Serif({
-  subsets: ["latin"],
-  weight: "400",
-  style: ["normal", "italic"],
-  variable: "--font-serif",
-  display: "swap",
-});
-
-const geistMono = Geist_Mono({
-  subsets: ["latin"],
-  variable: "--font-geist-mono",
   display: "swap",
 });
 
@@ -35,7 +21,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${rubikMonoOne.variable} ${instrumentSerif.variable} ${geistMono.variable}`}>
+    <html lang="en" className={rubikMonoOne.variable}>
       <body>{children}</body>
     </html>
   );
