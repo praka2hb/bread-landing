@@ -13,6 +13,10 @@ const nextConfig: NextConfig = {
         destination: "/deck/index.html",
       },
       {
+        source: "/deck/c",
+        destination: "/deck/c/index.html",
+      },
+      {
         source: "/deck/stocklana",
         destination: "/deck/index.html",
       },
